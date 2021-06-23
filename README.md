@@ -1,4 +1,6 @@
-# **[mlctl](https://github/intuit/mlctl)**
+# **[mlctl](https://github.com/intuit/mlctl)**
+
+![mlctl logo](.github/assets/images/mlctl-logo.png)
 
 `mlctl` is the Command Line Interface (CLI)/Software Development Kit (SDK) for MLOps. It allows for all ML Lifecycle operations, such as `Training`, `Deployment` etc. to be controlled via a simple-to-use command line interface. Additionally, `mlctl` provides a SDK for use in a notebook environment and employs an extensible mechanism for plugging in various back-end providers, such as SageMaker. 
 
