@@ -1,0 +1,14 @@
+*.egg-info
+.tox
+.eggs
+
+report.html
+
+tests/*
+
+__version.py
+
+build/*
+dist/*
+
+secrets/*
