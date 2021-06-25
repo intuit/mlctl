@@ -8,7 +8,7 @@ on: [push]
 jobs:    
   build:
     runs-on: ubuntu-latest
-    
+
     env:
       AWS_DEFAULT_REGION: us-west-2
 
@@ -26,15 +26,20 @@ jobs:
 
     - name: Test
       run: |
+        ls
+        pwd
         tox
     
   release:
-
     runs-on: ubuntu-latest
 
     steps:
     - name: Release Build
       run: |
+        ls
+
+        pwd
+        
         python setup.py bdist_wheel --universal
         python setup.py sdist
 
