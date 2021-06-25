@@ -29,15 +29,10 @@ jobs:
         ls
         pwd
         tox
-    
-  release:
-    runs-on: ubuntu-latest
 
-    steps:
     - name: Release Build
       run: |
         ls
-
         pwd
         
         python setup.py bdist_wheel --universal
