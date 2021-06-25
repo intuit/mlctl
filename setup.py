@@ -25,7 +25,7 @@ setup(
 
     maintainer='Intuit ML Platform',
     maintainer_email='mlctl-maintainers@intuit.com',
-    url='github.com/intuit/mlctl',
+    url='https://github.com/intuit/mlctl',
 
     entry_points={
         'console_scripts': [
