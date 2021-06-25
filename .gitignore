@@ -10,3 +10,5 @@ __version.py
 
 build/*
 dist/*
+
+secrets/*
