@@ -25,8 +25,20 @@ jobs:
         pip install --upgrade flake8 pytest tox black converge wheel twine
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Build
+    - name: Test
       run: |
         tox
+    
+  release:
+    steps:
+    - name: Release Build
+      run: |
         python setup.py bdist_wheel --universal
         python setup.py sdist
+
+    - name: Publish package
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
