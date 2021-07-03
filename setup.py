@@ -20,7 +20,10 @@ setup(
     install_requires=[
         'requests',
         'deprecation',
-        'cachetools'
+        'cachetools',
+        'click',
+        'boto3',
+        'cookiecutter'
     ],
 
     maintainer='Intuit ML Platform',

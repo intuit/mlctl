@@ -53,6 +53,17 @@ mlctl <command> --help
 mlctl <command> <subcommand> --help
 ```
 
+### **Initialize ML Model**
+---
+
+```
+mlctl init [OPTIONS]
+```
+| Options             | Description
+| --------------------|-------------  
+| template or -t      | (optional) Location of the project template github location. 
+
+
 ### **Training Commands**
 ---
 
