@@ -18,12 +18,12 @@ setup(
 
     # Insert dependencies list here
     install_requires=[
-        'requests',
-        'deprecation',
-        'cachetools',
-        'click',
-        'boto3',
-        'cookiecutter'
+        'requests==2.25.1',
+        'deprecation==2.1.0',
+        'cachetools==4.2.2',
+        'click==8.0.1',
+        'boto3==1.17.108',
+        'cookiecutter==1.7.3'
     ],
 
     maintainer='Intuit ML Platform',
