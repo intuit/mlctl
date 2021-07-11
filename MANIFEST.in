@@ -1,0 +1,1 @@
+recursive-include mlctl/clis/template *
