@@ -18,14 +18,12 @@ setup(
 
     # Insert dependencies list here
     install_requires=[
-        'requests',
-        'deprecation',
-        'cachetools',
-        'click',
-        'boto3',
-        'cookiecutter',
-        'docker>=2.0.0',   # Earliest with compatible `docker.from_env` API
-        'appdirs>=1.4.0'  # First version compatible with current pip paths
+        'requests==2.25.1',
+        'deprecation==2.1.0',
+        'cachetools==4.2.2',
+        'click==8.0.1',
+        'boto3==1.17.108',
+        'cookiecutter==1.7.3'
     ],
 
     maintainer='Intuit ML Platform',
