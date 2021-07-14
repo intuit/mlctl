@@ -13,7 +13,7 @@ setup(
     setup_requires=["setuptools-scm"],
 
     # Package data
-    packages=find_packages(),
+    packages=["mlctl", "baklava"],
     include_package_data=True,
 
     # Insert dependencies list here
@@ -23,7 +23,9 @@ setup(
         'cachetools',
         'click',
         'boto3',
-        'cookiecutter'
+        'cookiecutter',
+        'docker>=2.0.0',   # Earliest with compatible `docker.from_env` API
+        'appdirs>=1.4.0'  # First version compatible with current pip paths
     ],
 
     maintainer='Intuit ML Platform',
@@ -33,6 +35,17 @@ setup(
     entry_points={
         'console_scripts': [
             'mlctl = mlctl.clis.cli:_mlctl_pass_through'
-        ]
+        ],
+        'distutils.commands': [
+            'train = baklava.commands:Train',
+            'execute = baklava.commands:Train',
+            'predict = baklava.commands:Predict',
+            'serve = baklava.commands:Predict',
+        ],
+        'distutils.setup_keywords': [
+            'python_version = baklava.commands:passthrough',
+            'dockerlines = baklava.commands:passthrough',
+        ],
+
     }
 )

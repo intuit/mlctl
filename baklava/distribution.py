@@ -7,7 +7,7 @@ import pkg_resources
 import os
 import textwrap
 
-from mlctl.baklava import environment, render
+from baklava import environment, render
 
 
 def format_dockerlines(dockerlines):

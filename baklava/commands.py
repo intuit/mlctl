@@ -9,7 +9,7 @@ from distutils.core import Command
 import os
 
 
-from mlctl.baklava import images, entrypoint, distribution
+from baklava import images, entrypoint, distribution
 
 
 class Docker(Command):

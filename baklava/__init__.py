@@ -3,7 +3,7 @@ try:
 except ImportError:  # pragma: no cover
     __version__ = 'dev'
 
-from mlctl.baklava.api import (
+from baklava.api import (
     train,
     predict,
 )
