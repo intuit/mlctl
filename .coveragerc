@@ -2,3 +2,4 @@
 omit =
     baklava/commands.py
     baklava/images.py
+    mlctl/cli/template

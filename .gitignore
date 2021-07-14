@@ -14,3 +14,8 @@ dist/*
 secrets/*
 
 *__pycache__
+
+boilerplate_ml_model/*
+
+coverage.xml
+.coverage
