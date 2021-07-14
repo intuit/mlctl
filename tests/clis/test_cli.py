@@ -9,6 +9,11 @@ from mlctl.clis.cli import _mlctl_pass_through
 
 class TestCli(unittest.TestCase):
 
+    def test_init(self):
+        runner = CliRunner()
+        response = runner.invoke(_mlctl_pass_through, ["init", "--help"])
+        self.assertIn("Init command", response.output)
+
     def test_train(self):
         runner = CliRunner()
         response = runner.invoke(_mlctl_pass_through, "train")

@@ -4,8 +4,6 @@
 
 report.html
 
-tests/*
-
 __version.py
 
 build/*
@@ -14,3 +12,5 @@ dist/*
 secrets/*
 
 *__pycache__
+
+.vscode
