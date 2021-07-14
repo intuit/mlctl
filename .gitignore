@@ -4,8 +4,6 @@
 
 report.html
 
-tests/*
-
 __version.py
 
 build/*
@@ -19,3 +17,4 @@ boilerplate_ml_model/*
 
 coverage.xml
 .coverage
+.vscode
