@@ -1,0 +1,15 @@
+mlctl_version: 0.1
+metadata:
+  version: 1.0
+  project: height_data
+  job_name: sklearndemo
+  job_type: training
+env_vars:
+  hp_eta: 0.3
+  hp_max_depth: 3
+  hp_objective: multi:softprob
+  hp_num_class: 3
+data:
+  input: s3://mlctltest/example1_data/
+  output: s3://mlctltest/example1_output/
+resources: ml.m5.large
