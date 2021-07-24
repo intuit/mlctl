@@ -12,43 +12,43 @@ class SagemakerTraining(Training):
 
     def start_training(self, config, hyperparameter_tuning=False):
         try:
-            if hyperparameter_tuning == True:
-                parameters = ["HyperParameterTuningJobName",
-                              "HyperParameterTuningJobConfig",
-                              "TrainingJobDefinition",
-                              "TrainingJobDefinitions",
-                              "WarmStartConfig",
-                              "Tags"]
-                kwargs = parse_config(config, parameters)
-                return self._client.create_hyper_parameter_tuning_job(
-                    **{k: v for k, v in kwargs.items() if v is not None})
+            # if hyperparameter_tuning == True:
+            #     parameters = ["HyperParameterTuningJobName",
+            #                   "HyperParameterTuningJobConfig",
+            #                   "TrainingJobDefinition",
+            #                   "TrainingJobDefinitions",
+            #                   "WarmStartConfig",
+            #                   "Tags"]
+            #     kwargs = parse_config(config, parameters)
+            #     return self._client.create_hyper_parameter_tuning_job(
+            #         **{k: v for k, v in kwargs.items() if v is not None})
 
-            else:
-                parameters = ["TrainingJobName",
-                              "HyperParameters",
-                              "AlgorithmSpecification",
-                              "RoleArn",
-                              "InputDataConfig",
-                              "OutputDataConfig",
-                              "ResourceConfig",
-                              "VpcConfig",
-                              "StoppingCondition",
-                              "Tags",
-                              "EnableNetworkIsolation",
-                              "EnableInterContainerTrafficEncryption",
-                              "EnableManagedSpotTraining",
-                              "CheckpointConfig",
-                              "DebugHookConfig",
-                              "DebugRuleConfigurations",
-                              "TensorBoardOutputConfig",
-                              "ExperimentConfig",
-                              "ProfilerConfig",
-                              "ProfilerRuleConfigurations",
-                              "Environment"]
-                kwargs = parse_config(config, parameters)
-                return self._client.create_training_job(
-                    **{k: v for k, v in kwargs.items() if v is not None}
-                )
+            # else:
+            parameters = ["TrainingJobName",
+                            "HyperParameters",
+                            "AlgorithmSpecification",
+                            "RoleArn",
+                            "InputDataConfig",
+                            "OutputDataConfig",
+                            "ResourceConfig",
+                            "VpcConfig",
+                            "StoppingCondition",
+                            "Tags",
+                            "EnableNetworkIsolation",
+                            "EnableInterContainerTrafficEncryption",
+                            "EnableManagedSpotTraining",
+                            "CheckpointConfig",
+                            "DebugHookConfig",
+                            "DebugRuleConfigurations",
+                            "TensorBoardOutputConfig",
+                            "ExperimentConfig",
+                            "ProfilerConfig",
+                            "ProfilerRuleConfigurations",
+                            "Environment"]
+            kwargs = parse_config(config, parameters)
+            return self._client.create_training_job(
+                **{k: v for k, v in kwargs.items() if v is not None}
+            )
         except Exception as e:
             return str(e)
 

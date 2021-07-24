@@ -1,0 +1,9 @@
+mlctl_version: 0.1
+resources: 'ml.m5.large'
+infrastructure:
+  name: awssagemaker
+  arn: arn:aws:iam::436885317446:role/sm-execution
+  container_repo: 436885317446.dkr.ecr.us-east-1.amazonaws.com/mlctl-test
+metadata:
+  - name: mlflow
+    tracking_uri: http://ec2-34-234-193-241.compute-1.amazonaws.com:5000

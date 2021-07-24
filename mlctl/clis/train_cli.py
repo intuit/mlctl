@@ -1,8 +1,9 @@
 import click
-from mlctl.utils import determine_plugin
 import os
 import subprocess
+from distutils.core import run_setup
 
+from mlctl.utils import determine_infra_plugin_from_job, parse_yamls
 @click.group(name='train', help="Train commands")
 def train():
     pass
@@ -10,23 +11,22 @@ def train():
 import sys
 import time
 @train.command(name="build", help="build a container for training")
-def start():
-    click.echo("Building container for training job")
+@click.option('--provider_config', '-p', envvar='PROVIDER_CONFIG', help="file location for the provider.yaml", metavar='')
+@click.option('--config', '-c', required=True, help="config file containing parameters for training job", metavar='')
+def start(provider_config, config):
+    
 
-    # TODO: make this a dynamic lookup
+    job = parse_yamls(config, provider_config)
+    infrastructure_name = job.serialize()['infrastructure']['name']
+
     if not os.path.isfile('./setup.py'):
         print('Missing mlctl setup.py for building a mlctl universal container. \
         Try mlctl init, or navigating to the home directory of the project.')
         return
-    
-    process = subprocess.Popen(['python3', './setup.py', 'train', '-t', 'train-image'],stdout=subprocess.PIPE)
-    while True:
-        output = process.stdout.readline()
-        if process.poll() is not None:
-            break
-        if output:
-            print (output.strip().decode())
-    retval = process.poll()
+    click.echo("Building container for training job")
+    # TODO change train image to image tagged usage
+    build = run_setup('./setup.py', script_args=['sdist', '--dist-dir', './.mlctl','train', '-t', 'train-image',  '-p', infrastructure_name])
+
     return
 
 @train.command(name="push", help="push a container for training")
@@ -53,20 +53,19 @@ def start():
 
 @train.command(name="start", help="Train a model")
 @click.option('--profile', '-pr', envvar='PROFILE', help="credentials profile or file location", metavar='')
-@click.option('--plugin', '-pl', envvar='PLUGIN', help="plugin (i.e. sagemaker, azure)", metavar='', type=click.Choice(['sagemaker']), required=True)
-@click.option('--hyperparameter-tuning', is_flag=True, help="indicates that training job performs hyperparameter-tuning", metavar='')
+@click.option('--provider_config', '-p', envvar='PROVIDER_CONFIG', help="file location for the provider.yaml", metavar='')
 @click.option('--config', '-c', required=True, help="config file containing parameters for training job", metavar='')
-def start(profile, plugin, hyperparameter_tuning, config):
-    training = determine_plugin(plugin, profile, 'training')
+def start(profile, provider_config, config):
+    job = parse_yamls(config, provider_config)
+    training = determine_infra_plugin_from_job(job, profile)
     click.echo(training.start_training(
-        config, hyperparameter_tuning))
+        job))
 
 
 @train.command(name="info", help="Get training job information")
 @click.option('--profile', '-pr', envvar='PROFILE', help="credentials profile or file location", metavar='')
-@click.option('--plugin', '-pl', envvar='PLUGIN', help="plugin (i.e. sagemaker, azure)", metavar='', type=click.Choice(['sagemaker']), required=True)
-@click.option('--training-job-name', '-t', required=True, help="name of training job", metavar='')
-@click.option('--hyperparameter-tuning', is_flag=True, help="indicates that training job performs hyperparameter-tuning", metavar='')
+@click.option('--config', '-c', required=False, help="name of training job", metavar='')
+@click.option('--training-job-name', '-t', required=False, help="name of training job", metavar='')
 def info(profile, plugin, training_job_name, hyperparameter_tuning):
     training = determine_plugin(plugin, profile, 'training')
     click.echo(training.get_training_info(
@@ -75,9 +74,8 @@ def info(profile, plugin, training_job_name, hyperparameter_tuning):
 
 @train.command(name="stop", help="Stop a training job")
 @click.option('--profile', '-pr', envvar='PROFILE', help="credentials profile or file location", metavar='')
-@click.option('--plugin', '-pl', envvar='PLUGIN', help="plugin (i.e. sagemaker, azure)", metavar='', type=click.Choice(['sagemaker']), required=True)
 @click.option('--training-job-name', '-t', required=True, help="name of training job", metavar='')
-@click.option('--hyperparameter-tuning', is_flag=True, help="indicates that training job performs hyperparameter-tuning", metavar='')
+@click.option('--config', '-c', required=False, help="name of training job", metavar='')
 def stop(profile, plugin, training_job_name, hyperparameter_tuning):
     training = determine_plugin(plugin, profile, 'training')
 

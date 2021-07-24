@@ -1,0 +1,9 @@
+mlctl_version: 0.1
+infrastructure:
+  name: azureml
+  container_repo: mlctl.azurecr.io/mlctl/myrepo
+  resource_group: mlctl
+  workspace_name: mlctl-test
+# metadata:
+#   - name: mlflow
+#     tracking_uri: http://ec2-34-234-193-241.compute-1.amazonaws.com:5000
