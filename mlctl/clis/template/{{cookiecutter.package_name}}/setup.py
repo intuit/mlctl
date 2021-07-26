@@ -5,13 +5,15 @@ setup(
     version='0.1.0',
     description="{{ cookiecutter.description }}",
     packages=find_packages(),
-    install_requires=[],
+    install_requires=[
+            'mlsriracha>=0.0.2'
+        ],
     python_requires='>=3.6',
     entry_points={
-        'baklava.train': [
+        'mlbaklava.train': [
             'example_train = model.train:train'
         ],
-        'baklava.predict': [
+        'mlbaklava.predict': [
             'example_predict = model.predict:predict',
         ],
     },
