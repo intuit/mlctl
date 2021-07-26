@@ -1,21 +1,26 @@
-import json
+import functools
 
-
-def predict(payload):
+@functools.lru_cache()
+def init(pa):
     """
-    Define a hosted function that runs the model.
+    Load the pickled model back into memory. Since loading models can be
+    expensive, this function is cached so that the model only needs to be loaded
+    into memory once.
+    Returns:
+        model (sklearn.tree.DecisionTreeClassifier): The trained decision tree.
+    """
+
+
+def predict(pa, payload):
+    """
+    Run the decision tree classifier on the input payload. It is expected that
+    the payload will have an 'age' and 'height' key, otherwise an error will
+    occur.
+    Note: This is the prediction entrypoint used by baklava!
     Arguments:
-        payload (dict[str, object]): This is the payload that is sent to the
-            SageMaker server using a POST request to the `invocations` route.
+        payload (dict[str, object]): This is the payload that will eventaully
+            be sent to the server using a POST request.
     Returns:
         payload (dict[str, object]): The output of the function is expected to
             be either a dictionary (like the function input) or a JSON string.
     """
-
-    payload = payload["data"]
-
-    print(
-        "You can print things for debugging"
-    )
-
-    return json.dumps(payload)
