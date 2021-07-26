@@ -1,6 +1,8 @@
 import click
 import os
 from cookiecutter.main import cookiecutter
+from cookiecutter.utils import rmtree
+from distutils.dir_util import copy_tree
 
 from mlctl.helpers.log_helper import Logger, enable_verbose_option
 
@@ -13,4 +15,6 @@ def init(template, verbose):
         os.path.dirname(__file__), 'template')
     Logger.debug(
         f'Creating ML Model project using template from {template_path}')
-    cookiecutter(template_path)
+    output_dir = cookiecutter(template_path)
+    copy_tree(output_dir, os.getcwd())
+    rmtree(str(output_dir))

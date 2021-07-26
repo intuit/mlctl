@@ -1,6 +1,6 @@
-# Machine Learning Model - {{ cookiecutter.project_name }}
+# Machine Learning Model - {{ cookiecutter.package_name }}
 
-{{ cookiecutter.project_short_description }}
+{{ cookiecutter.description }}
 
 ## Code Repo Structure
 

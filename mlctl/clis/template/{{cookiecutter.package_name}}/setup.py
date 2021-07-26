@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='{{ cookiecutter.project_slug }}',
-    version='{{ cookiecutter.version }}',
-    description="{{ cookiecutter.project_short_description }}",
+    name='{{ cookiecutter.package_name.lower().replace(' ', '_').replace('-', '_') }}',
+    version='0.1.0',
+    description="{{ cookiecutter.description }}",
     packages=find_packages(),
     install_requires=[],
     python_requires='>=3.6',
