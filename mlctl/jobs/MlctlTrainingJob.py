@@ -61,7 +61,7 @@ class MlctlTrainingJob():
             self.data_channels['input'].update(params['input'])
 
         # if there is a desired storage output
-        if params['output']:
+        if 'output' in params:
             self.data_channels['output'] = params['output']
             
 
