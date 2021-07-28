@@ -1,6 +1,8 @@
 from random_word import RandomWords
 import json
 
+from mlctl.jobs.common.helper import parse_infrastructure
+
 class MlctlTrainingJob():
 
     def __init__(self, job_type, project, name=None):
@@ -11,31 +13,18 @@ class MlctlTrainingJob():
         else:
             # else make a new name randomly
             words = RandomWords().get_random_words()
-            self.name = f'mlctl-{words[0]}-{words[1]}'
+            self.name = f'mlctl-training-{words[0]}'
 
         self.job_type = job_type
         self.project = project
-        self.add_env_vars({'sriracha_run_name': self.name, 'sriracha_experiment_name': project})
+        self.add_env_vars({'run_name': self.name, 'experiment_name': project})
     
     def add_infra_provider(self, params):
-        # TODO: add validation on allowed infrastructure
-        self.infrastructure = {'name': params['name']}
-        self.infrastructure['container_repo'] = params['container_repo']
-
-        # currently used for AWS
-        if 'arn' in params:
-            self.infrastructure['arn'] = params['arn']
-
-        # currently used for Azure
-        if 'resource_group' in params:
-            self.infrastructure['resource_group'] = params['resource_group']
+    
+        self.infrastructure = parse_infrastructure(params) 
         
-        if 'workspace_name' in params:
-            self.infrastructure['workspace_name'] = params['workspace_name']
-        
-
         self.add_env_vars({
-            'sriracha_provider': params['name']
+            'provider': self.infrastructure['training']['name']
         })
 
     def add_metadata_provider(self, params):
@@ -94,28 +83,30 @@ class MlctlTrainingJob():
         # store without 'hp_
         for key in params:
             if key.startswith('hp_'):
+                # copy the values to hyperparameters without hp_
                 hyperparameters[key[3:]] = params[key]
             else:
-                env_vars[key] = params[key]
+                # create all env vars with sriracha_ as prefix
+                env_vars['sriracha_' + key] = params[key]
 
         self.env_vars.update(env_vars)
         self.hyperparameters.update(hyperparameters)
         
-
     def add_resources(self, params):
 
         # adding resource is designed to overwrite existing
-        self.resources = {}
+        # As a ML engineer, I can override the provider specific YAML job
+        self.infrastructure['training']['resources'] = {}
 
         if type(params) == str:
-            self.resources['instance_type'] = params
-            self.resources['instance_count'] = 1
+            self.infrastructure['training']['resources']['instance_type'] = params
+            self.infrastructure['training']['resources']['instance_count'] = 1
         elif 'instance' in params:
-            self.resources['instance_type'] = params.instance 
-            self.resources['instance_count'] = params.count
+            self.infrastructure['training']['resources']['instance_type'] = params.instance 
+            self.infrastructure['training']['resources']['instance_count'] = params.count
         elif 'cpu' in params:
-            self.resources['cpu'] = params.cpu
-            self.resources['memory'] = params.mememory
+            self.infrastructure['training']['resources']['cpu'] = params.cpu
+            self.infrastructure['training']['resources']['memory'] = params.memory
 
     def serialize(self):
         return self.__dict__
