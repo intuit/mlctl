@@ -29,16 +29,23 @@ def parse_infrastructure(params):
         if 'workspace_name' in infra:
             iter['workspace_name'] = infra['workspace_name']
         
-        if type(infra) == str:
-            iter['instance_type'] = infra
-            iter['instance_count'] = 1
-        elif 'instance' in infra:
-            iter['instance_type'] = infra.instance 
-            iter['instance_count'] = infra.count
-        elif 'cpu' in infra:
-            iter['cpu'] = infra.cpu
-            iter['memory'] = infra.memory
-        
+        # selection of instance type and resources in k8s/AWS SM
+        if 'resources' in infra:
+            if type(infra['resources']) == str:
+                iter['resources'] = {
+                    "instance_type": infra['resources'],
+                    "instance_count": 1
+                }
+            elif 'instance' in infra['resources']:
+                iter['resources'] = {
+                    'instance_type': infra['resource']['instance_type'],
+                    'instance_count': infra['resource']['instance_count']
+                }
+            elif 'cpu' in infra['resources']:
+                iter['resources'] = {
+                    'cpu': infra['resource']['cpu'],
+                    'memory': infra['resource']['memory']
+                }
         
         if 'job_type' in infra:
             # if selected, save the infra for a specific type
