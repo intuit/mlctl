@@ -29,14 +29,14 @@ class AwsSagemakerTraining(Training):
             # converts everything to string for boto3 API
             hyperparameters = {}
             for key in job_definition['hyperparameters']:
-                hyperparameters[key] = str(job_definition['hyperparameters'][key])
+                hyperparameters[key.replace('sriracha_hp_', '')] = str(job_definition['hyperparameters'][key])
 
             kwargs = {
                 'TrainingJobName': job_definition['name'],
-                'RoleArn': job_definition['infrastructure']['arn'],
+                'RoleArn': job_definition['infrastructure']['training']['arn'],
                 'AlgorithmSpecification': {
                     # hardcoding image until we have a mlctl state system for tracking tags
-                    'TrainingImage': job_definition['infrastructure']['container_repo'] + ':train-image',
+                    'TrainingImage': job_definition['infrastructure']['training']['container_repo'] + ':train-image',
                     'TrainingInputMode': 'File'
                 }, 'InputDataConfig': [{
                     'ChannelName': 'training',
@@ -52,8 +52,8 @@ class AwsSagemakerTraining(Training):
                 }], 'OutputDataConfig': {
                     'S3OutputPath': job_definition['data_channels']['output']
                 }, 'ResourceConfig': {
-                    'InstanceType': job_definition['resources']['instance_type'],
-                    'InstanceCount': job_definition['resources']['instance_count'],
+                    'InstanceType': job_definition['infrastructure']['training']['resources']['instance_type'],
+                    'InstanceCount': job_definition['infrastructure']['training']['resources']['instance_count'],
                     'VolumeSizeInGB': 30
                 },'Tags': [{
                     'Key': 'mlctl',

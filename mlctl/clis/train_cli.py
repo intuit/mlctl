@@ -1,62 +1,51 @@
 import click
 import os
-import subprocess
 from distutils.core import run_setup
 
-from mlctl.utils import determine_infra_plugin_from_job, parse_yamls
+from mlctl.clis.common.utils import determine_infra_plugin_from_job, parse_training_yamls
+
 @click.group(name='train', help="Train commands")
 def train():
     pass
 
-import sys
-import time
+
 @train.command(name="build", help="build a container for training")
 @click.option('--provider_config', '-p', envvar='PROVIDER_CONFIG', help="file location for the provider.yaml", metavar='')
 @click.option('--config', '-c', required=True, help="config file containing parameters for training job", metavar='')
-def start(provider_config, config):
+@click.option('--tag', '-t', help="Docker Image tag to save image to", metavar='')
+def start(provider_config, config, tag):
     
 
-    job = parse_yamls(config, provider_config)
-    infrastructure_name = job.serialize()['infrastructure']['name']
+    job = parse_training_yamls(config, provider_config)
+    infrastructure_name = job.serialize()['infrastructure']['training']['name']
 
+    # validate if there is a setup file to build from
     if not os.path.isfile('./setup.py'):
         print('Missing mlctl setup.py for building a mlctl universal container. \
         Try mlctl init, or navigating to the home directory of the project.')
         return
     click.echo("Building container for training job")
-    # TODO change train image to image tagged usage
-    build = run_setup('./setup.py', script_args=['sdist', '--dist-dir', './.mlctl','train', '-t', 'train-image',  '-p', infrastructure_name])
-
-    return
-
-@train.command(name="push", help="push a container for training")
-def start():
-
-    # TODO:
-    # Remove placeholder
-    # check a state file for the container repo
-    # tag the local image to the remote
-    # push to the right repo
-    click.echo("Pushing container for training job")
-    def spinning_cursor():
-        while True:
-            for cursor in '|/-\\':
-                yield cursor
-
-    spinner = spinning_cursor()
-    for _ in range(50):
-        sys.stdout.write(next(spinner))
-        sys.stdout.flush()
-        time.sleep(0.1)
-        sys.stdout.write('\b')
     
+    # validate if there is a tag name, else use the default
+    if tag:
+        image_name = tag
+    else:
+        image_name = 'train-image'
+    build = run_setup('./setup.py', 
+        script_args=['sdist', '--dist-dir', './.mlctl','train',
+        '-t', image_name,  '-p', infrastructure_name])
+    click.echo(f'The container was built with tag {image_name}. \
+To start the container on a service, tag your image to your remote repository and then push to it with the commands. For instance:\n\n\
+docker tag {image_name} [remote_repository]\n\
+docker push [remote_repository]')
+    return
 
 @train.command(name="start", help="Train a model")
 @click.option('--profile', '-pr', envvar='PROFILE', help="credentials profile or file location", metavar='')
 @click.option('--provider_config', '-p', envvar='PROVIDER_CONFIG', help="file location for the provider.yaml", metavar='')
 @click.option('--config', '-c', required=True, help="config file containing parameters for training job", metavar='')
 def start(profile, provider_config, config):
-    job = parse_yamls(config, provider_config)
+    job = parse_training_yamls(config, provider_config)
     training = determine_infra_plugin_from_job(job, profile)
     click.echo(training.start_training(
         job))

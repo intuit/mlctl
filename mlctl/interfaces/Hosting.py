@@ -3,17 +3,17 @@ from abc import ABC, abstractmethod
 
 class Hosting(ABC):
     @abstractmethod
-    def create(self, model_config):
+    def create(self, job):
         pass
 
     @abstractmethod
-    def deploy(self, endpoint_name, config):
+    def start_hosting(self, job):
         pass
 
     @abstractmethod
-    def undeploy(self, endpoint_name):
+    def stop_hosting(self, job):
         pass
 
     @abstractmethod
-    def get_endpoint_info(self, endpoint_name):
+    def get_hosting_info(self, job):
         pass
