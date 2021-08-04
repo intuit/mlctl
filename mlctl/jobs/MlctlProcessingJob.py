@@ -1,7 +1,9 @@
 from random_word import RandomWords
 import json
 
-class MlctlTrainingJob():
+from mlctl.jobs.common.helper import parse_infrastructure
+
+class MlctlProcessingJob():
 
     def __init__(self, job_type, project, name=None):
 
@@ -15,40 +17,16 @@ class MlctlTrainingJob():
 
         self.job_type = job_type
         self.project = project
-        self.add_env_vars({'sriracha_run_name': self.name, 'sriracha_experiment_name': project})
+        self.add_env_vars({'run_name': self.name, 'experiment_name': project})
     
     def add_infra_provider(self, params):
+    
+        self.infrastructure = parse_infrastructure(params) 
         
-        # TODO: convert to diction with default and then training/hosting/specific
-
-        # TODO: add validation on allowed infrastructure
-        self.infrastructure = {'name': params['name']}
-        self.infrastructure['container_repo'] = params['container_repo']
-
-        # currently used for AWS
-        if 'arn' in params:
-            self.infrastructure['arn'] = params['arn']
-
-        # currently used for Azure
-        if 'resource_group' in params:
-            self.infrastructure['resource_group'] = params['resource_group']
-        
-        if 'workspace_name' in params:
-            self.infrastructure['workspace_name'] = params['workspace_name']
-        
-        if type(params) == str:
-            self.infrastructure['instance_type'] = params
-            self.infrastructure['instance_count'] = 1
-        elif 'instance' in params:
-            self.infrastructure['instance_type'] = params.instance 
-            self.infrastructure['instance_count'] = params.count
-        elif 'cpu' in params:
-            self.infrastructure['cpu'] = params.cpu
-            self.infrastructure['memory'] = params.memory
-
         self.add_env_vars({
-            'sriracha_provider': params['name']
+            'provider': self.infrastructure['processing']['name']
         })
+
 
     def add_metadata_provider(self, params):
 
@@ -75,10 +53,10 @@ class MlctlTrainingJob():
                 'input': {},
             }
 
-        # if the user only puts a string, default to training
+        # if the user only puts a string, default to processing
         if type(params['input']) == str: 
             self.data_channels['input'].update({
-                'training': params['input']
+                'processing': params['input']
             })
         else:
             self.data_channels['input'].update(params['input'])
@@ -106,9 +84,11 @@ class MlctlTrainingJob():
         # store without 'hp_
         for key in params:
             if key.startswith('hp_'):
+                # copy the values to hyperparameters without hp_
                 hyperparameters[key[3:]] = params[key]
             else:
-                env_vars[key] = params[key]
+                # create all env vars with sriracha_ as prefix
+                env_vars['sriracha_' + key] = params[key]
 
         self.env_vars.update(env_vars)
         self.hyperparameters.update(hyperparameters)

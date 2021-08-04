@@ -73,7 +73,8 @@ class MlctlHostingJob():
 
         env_vars = {}
         for key in params:
-            env_vars[key] = params[key]
+            # create all env vars with sriracha_ as prefix
+            env_vars['sriracha_' + key] = params[key]
 
         self.env_vars.update(env_vars)
         

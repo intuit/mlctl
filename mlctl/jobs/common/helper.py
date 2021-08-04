@@ -15,6 +15,7 @@ def parse_infrastructure(params):
     for infra in params:
 
         # parse through the current infra_option
+        # print(infra)
         iter = {'name': infra['name']}
         iter['container_repo'] = infra['container_repo']
 

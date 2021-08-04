@@ -2,7 +2,7 @@ import click
 import os
 from distutils.core import run_setup
 
-from mlctl.clis.common.utils import determine_infra_plugin_from_job, parse_training_yamls
+from mlctl.clis.common.utils import determine_infra_plugin_from_job, parse_training_yamls, docker_instructions
 
 @click.group(name='train', help="Train commands")
 def train():
@@ -34,10 +34,7 @@ def start(provider_config, config, tag):
     build = run_setup('./setup.py', 
         script_args=['sdist', '--dist-dir', './.mlctl','train',
         '-t', image_name,  '-p', infrastructure_name])
-    click.echo(f'The container was built with tag {image_name}. \
-To start the container on a service, tag your image to your remote repository and then push to it with the commands. For instance:\n\n\
-docker tag {image_name} [remote_repository]\n\
-docker push [remote_repository]')
+    click.echo(docker_instructions(image_name))
     return
 
 @train.command(name="start", help="Train a model")
