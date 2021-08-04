@@ -1,5 +1,5 @@
 import click
-from mlctl.clis.common.utils import determine_plugin
+from mlctl.clis.common.utils import determine_plugin, docker_instructions
 
 
 @click.group(name='batch', help="Batch inference commands")

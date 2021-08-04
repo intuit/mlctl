@@ -35,10 +35,11 @@ class AwsSagemakerTraining(Training):
                 'TrainingJobName': job_definition['name'],
                 'RoleArn': job_definition['infrastructure']['training']['arn'],
                 'AlgorithmSpecification': {
-                    # hardcoding image until we have a mlctl state system for tracking tags
+                    # TODO: support various image tags
                     'TrainingImage': job_definition['infrastructure']['training']['container_repo'] + ':train-image',
                     'TrainingInputMode': 'File'
                 }, 'InputDataConfig': [{
+                    # TODO: support multiple channels
                     'ChannelName': 'training',
                     'DataSource': {
                         'S3DataSource': {
