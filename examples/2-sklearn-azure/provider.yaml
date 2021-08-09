@@ -1,0 +1,8 @@
+mlctl_version: 0.1
+infrastructure:
+  name: azureml
+  container_repo: mlctl.azurecr.io/mlctl/myrepo
+  resource_group: mlctl
+  workspace_name: mlctl-test
+resources: 
+  deploy: Standard_DS2_v2
