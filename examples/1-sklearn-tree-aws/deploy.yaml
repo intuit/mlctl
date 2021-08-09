@@ -1,0 +1,7 @@
+mlctl_version: 0.1
+metadata:
+  name: my-new-endpoint
+  job_type: deploy
+  project: height_data
+models:
+  - artifact: s3://mlctltest/example1_output/mlctl-stumblebum-lenitives/output/model.tar.gz

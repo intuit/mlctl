@@ -2,9 +2,9 @@ import click
 import mlctl
 from mlctl.clis.init_cli import init
 from mlctl.clis.train_cli import train
-from mlctl.clis.hosting_cli import hosting
+from mlctl.clis.deploy_cli import deploy
 from mlctl.clis.batch_cli import batch
-from mlctl.clis.processing_cli import processing
+from mlctl.clis.process_cli import process
 
 
 @click.group()
@@ -16,5 +16,5 @@ def _mlctl_pass_through():
 _mlctl_pass_through.add_command(init)
 _mlctl_pass_through.add_command(train)
 _mlctl_pass_through.add_command(batch)
-_mlctl_pass_through.add_command(hosting)
-_mlctl_pass_through.add_command(processing)
+_mlctl_pass_through.add_command(deploy)
+_mlctl_pass_through.add_command(process)

@@ -1,16 +1,16 @@
-from mlctl.interfaces.Training import Training
+from mlctl.interfaces.train import Train
 from mlctl.plugins.utils import parse_config
 import boto3
 
 
-class AwsSagemakerTraining(Training):
+class AwsSagemakerTrain(Train):
 
     def __init__(self, profile=None):
         if profile:
             boto3.setup_default_session(profile_name=profile)
         self._client = boto3.client("sagemaker")
 
-    def start_training(self, job):
+    def start_train(self, job):
         try:
             # if hyperparameter_tuning == True:
             #     parameters = ["HyperParameterTuningJobName",
@@ -33,10 +33,10 @@ class AwsSagemakerTraining(Training):
 
             kwargs = {
                 'TrainingJobName': job_definition['name'],
-                'RoleArn': job_definition['infrastructure']['training']['arn'],
+                'RoleArn': job_definition['infrastructure']['train']['arn'],
                 'AlgorithmSpecification': {
                     # TODO: support various image tags
-                    'TrainingImage': job_definition['infrastructure']['training']['container_repo'] + ':train-image',
+                    'TrainingImage': job_definition['infrastructure']['train']['container_repo'] + ':train-image',
                     'TrainingInputMode': 'File'
                 }, 'InputDataConfig': [{
                     # TODO: support multiple channels
@@ -44,7 +44,7 @@ class AwsSagemakerTraining(Training):
                     'DataSource': {
                         'S3DataSource': {
                             'S3DataType': 'S3Prefix',
-                            'S3Uri': job_definition['data_channels']['input']['training'],
+                            'S3Uri': job_definition['data_channels']['input']['train'],
                             'S3DataDistributionType': 'FullyReplicated',
                         }
                     },
@@ -53,8 +53,8 @@ class AwsSagemakerTraining(Training):
                 }], 'OutputDataConfig': {
                     'S3OutputPath': job_definition['data_channels']['output']
                 }, 'ResourceConfig': {
-                    'InstanceType': job_definition['infrastructure']['training']['resources']['instance_type'],
-                    'InstanceCount': job_definition['infrastructure']['training']['resources']['instance_count'],
+                    'InstanceType': job_definition['infrastructure']['train']['resources']['instance_type'],
+                    'InstanceCount': job_definition['infrastructure']['train']['resources']['instance_count'],
                     'VolumeSizeInGB': 30
                 },'Tags': [{
                     'Key': 'mlctl',
@@ -79,8 +79,8 @@ class AwsSagemakerTraining(Training):
             print('Error' + e)
             return str(e)
 
-    def get_training_info(self, training_job_name, hyperparameter_tuning=False):
+    def get_train_info(self, train_job_name):
         pass
 
-    def stop_training(self, training_job_name, hyperparameter_tuning=False):
+    def stop_train(self, train_job_name):
         pass

@@ -3,11 +3,11 @@ from pathlib import Path
 import boto3
 from distutils.core import run_setup
 
-from mlctl.interfaces.Hosting import Hosting
+from mlctl.interfaces.deploy import Deploy
 from mlctl.plugins.utils import parse_config, run_subprocess
 
 
-class AwsSagemakerHosting(Hosting):
+class AwsSagemakerDeploy(Deploy):
     def __init__(self, profile=None):
         self.provider = 'awssagemaker'
 
@@ -22,7 +22,7 @@ class AwsSagemakerHosting(Hosting):
             response = self.client.create_model(
                 ModelName=model['name']+ '-model',
                 PrimaryContainer={
-                    'Image': job_definition['infrastructure']['hosting']['container_repo'] + ':predict-image',
+                    'Image': job_definition['infrastructure']['deploy']['container_repo'] + ':predict-image',
                     'ImageConfig': {
                         'RepositoryAccessMode': 'Platform',
                     },
@@ -32,7 +32,7 @@ class AwsSagemakerHosting(Hosting):
                         'sriracha_provider': 'awssagemaker'
                     },
                 },
-                ExecutionRoleArn= job_definition['infrastructure']['hosting']['arn'],
+                ExecutionRoleArn= job_definition['infrastructure']['deploy']['arn'],
                 Tags=[
                     {
                         'Key': 'mlctl',
@@ -44,8 +44,8 @@ class AwsSagemakerHosting(Hosting):
             variants.append({
                 'VariantName': 'main',
                 'ModelName': model['name']+ '-model',
-                'InitialInstanceCount': job_definition['infrastructure']['hosting']['resources']['instance_count'],
-                'InstanceType': job_definition['infrastructure']['hosting']['resources']['instance_type'],
+                'InitialInstanceCount': job_definition['infrastructure']['deploy']['resources']['instance_count'],
+                'InstanceType': job_definition['infrastructure']['deploy']['resources']['instance_type'],
                 'InitialVariantWeight': model['traffic'],
             })
 
@@ -81,7 +81,7 @@ class AwsSagemakerHosting(Hosting):
             ],
         )
 
-    def start_hosting(self, job):
+    def start_deploy(self, job):
         job_definition = job.serialize()
         response = self.client.create_endpoint(
             EndpointName=job_definition['name'] + '-endpoint',
@@ -97,10 +97,10 @@ class AwsSagemakerHosting(Hosting):
         print(response)
 
 
-    def get_hosting_info(self, job):
+    def get_deploy_info(self, job):
         pass
 
-    def stop_hosting(self, job):
+    def stop_deploy(self, job):
         try:
             pass
         except Exception as e:

@@ -1,15 +1,14 @@
 import yaml
 
-from mlctl.plugins.sagemaker.SagemakerBatch import SagemakerBatch
-from mlctl.plugins.awssagemaker.hosting import AwsSagemakerHosting
-from mlctl.plugins.awssagemaker.training import AwsSagemakerTraining
-from mlctl.plugins.awssagemaker.processing import AwsSagemakerProcessing
+from mlctl.plugins.awssagemaker.deploy import AwsSagemakerDeploy
+from mlctl.plugins.awssagemaker.train import AwsSagemakerTrain
+from mlctl.plugins.awssagemaker.process import AwsSagemakerProcess
 import mlctl.plugins.mlflow.metadata as MlflowPlugin
-from mlctl.plugins.azureml.training import AzureMlTraining
-from mlctl.plugins.azureml.hosting import AzureMlHosting
-from mlctl.jobs.MlctlTrainingJob import MlctlTrainingJob
-from mlctl.jobs.MlctlHostingJob import MlctlHostingJob
-from mlctl.jobs.MlctlProcessingJob import MlctlProcessingJob
+from mlctl.plugins.azureml.train import AzureMlTrain
+from mlctl.plugins.azureml.deploy import AzureMlDeploy
+from mlctl.jobs.MlctlTrainJob import MlctlTrainJob
+from mlctl.jobs.MlctlDeployJob import MlctlDeployJob
+from mlctl.jobs.MlctlProcessJob import MlctlProcessJob
 
 def docker_instructions(image_name):
     return f'\nThe container was built with tag {image_name}. \
@@ -19,7 +18,7 @@ The Docker commands should look like:\n\n\
 docker tag {image_name} [remote_repository]\n\
 docker push [remote_repository]'
 
-def parse_processing_yamls(job_config, provider_config=None):
+def parse_process_yamls(job_config, provider_config=None):
 
     if provider_config:
         # if the user provides a specific config file
@@ -38,19 +37,23 @@ def parse_processing_yamls(job_config, provider_config=None):
     # print(provider_spec)
     # print(job_spec)
 
-    if job_spec['metadata']['job_type'] != 'processing':
+    if job_spec['metadata']['job_type'] != 'process':
         job_type = job_spec['metadata']['job_type']
-        raise Exception(f'You are attempting to start a processing job with a {job_type} YAML')
+        raise Exception(f'You are attempting to start a process job with a {job_type} YAML')
 
     try:
         # job name is optional 
         # TODO: clean this function to parse for job_name requirement
-        job = MlctlProcessingJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'], job_spec['metadata']['job_name'])
+        job = MlctlProcessJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'], job_spec['metadata']['job_name'])
     except KeyError:
-        job = MlctlProcessingJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'])
+        job = MlctlProcessJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'])
     job.add_data_channels(job_spec['data'])
 
     job.add_infra_provider(provider_spec['infrastructure'])
+
+    if 'resources' in provider_spec:
+        print(provider_spec['resources'])
+        job.add_resources(provider_spec['resources'])
 
     if 'resources' in job_spec:
         job.add_resources(job_spec['resources'])
@@ -75,8 +78,7 @@ def parse_processing_yamls(job_config, provider_config=None):
 
     return job
 
-def parse_training_yamls(job_config, provider_config=None):
-
+def parse_train_yamls(job_config, provider_config=None):
     
     if provider_config:
         # if the user provides a specific config file
@@ -95,19 +97,22 @@ def parse_training_yamls(job_config, provider_config=None):
     # print(provider_spec)
     # print(job_spec)
 
-    if job_spec['metadata']['job_type'] != 'training':
+    if job_spec['metadata']['job_type'] != 'train':
         job_type = job_spec['metadata']['job_type']
-        raise Exception(f'You are attempting to start a training job with a {job_type} YAML')
+        raise Exception(f'You are attempting to start a train job with a {job_type} YAML')
 
     try:
         # job name is optional 
         # TODO: clean this function to parse for job_name requirement
-        job = MlctlTrainingJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'], job_spec['metadata']['job_name'])
+        job = MlctlTrainJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'], job_spec['metadata']['job_name'])
     except KeyError:
-        job = MlctlTrainingJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'])
+        job = MlctlTrainJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'])
     job.add_data_channels(job_spec['data'])
 
     job.add_infra_provider(provider_spec['infrastructure'])
+
+    if 'resources' in provider_spec:
+        job.add_resources(provider_spec['resources'])
 
     if 'resources' in job_spec:
         job.add_resources(job_spec['resources'])
@@ -132,7 +137,7 @@ def parse_training_yamls(job_config, provider_config=None):
 
     return job
 
-def parse_hosting_yamls(job_config, provider_config=None):
+def parse_deploy_yamls(job_config, provider_config=None):
 
     
     if provider_config:
@@ -152,20 +157,23 @@ def parse_hosting_yamls(job_config, provider_config=None):
     # print(provider_spec)
     # print(job_spec)
 
-    if job_spec['metadata']['job_type'] != 'hosting':
+    if job_spec['metadata']['job_type'] != 'deploy':
         job_type = job_spec['metadata']['job_type']
-        raise Exception(f'You are attempting to start a training job with a {job_type} YAML')
+        raise Exception(f'You are attempting to start a deploy job with a {job_type} YAML')
 
     try:
         # job name is optional 
         # TODO: clean this function to parse for job_name requirement
-        job = MlctlHostingJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'], job_spec['metadata']['job_name'])
+        job = MlctlDeployJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'], job_spec['metadata']['job_name'])
     except KeyError:
-        job = MlctlHostingJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'])
+        job = MlctlDeployJob(job_spec['metadata']['job_type'], job_spec['metadata']['project'])
 
     # Add the infra details from the provider first
     job.add_infra_provider(provider_spec['infrastructure'])
     
+    if 'resources' in provider_spec:
+        job.add_resources(provider_spec['resources'])
+
     # Follow up second with the resources from the job YAML if the user wants to override
     if 'resources' in job_spec:
         job.add_resources(job_spec['resources'])
@@ -189,32 +197,18 @@ def determine_infra_plugin_from_job(job, profile=None):
     if job_definition['infrastructure'][job_definition['job_type']]['name'] == 'awssagemaker':
         job_type = job_definition['job_type']
         if job_definition['job_type'] == 'batch':
-            return SagemakerBatch(profile)
-        elif job_definition['job_type'] == 'hosting':
-            return AwsSagemakerHosting(profile)
-        elif job_definition['job_type'] == 'training':
-            return AwsSagemakerTraining(profile)
-        elif job_definition['job_type'] == 'processing':
-            return AwsSagemakerProcessing(profile)
+            # TODO: reimplement batch
+            return
+        elif job_definition['job_type'] == 'deploy':
+            return AwsSagemakerDeploy(profile)
+        elif job_definition['job_type'] == 'train':
+            return AwsSagemakerTrain(profile)
+        elif job_definition['job_type'] == 'process':
+            return AwsSagemakerProcess(profile)
         else:
             print(f'{job_type} is not a valid job')
     elif job_definition['infrastructure'][job_definition['job_type']]['name'] == 'azureml':
-        if job_definition['job_type'] == 'training':
-            return AzureMlTraining(profile)
-        elif job_definition['job_type'] == 'hosting':
-            return AzureMlHosting(profile)
-
-# Used for old versions of CLI
-def determine_plugin(plugin, profile, capability):
-    if plugin == 'sagemaker':
-        if capability == 'batch':
-            return SagemakerBatch(profile)
-        elif capability == 'hosting':
-            return SagemakerHosting(profile)
-        elif capability == 'training':
-            return SagemakerTraining(profile)
-        else:
-            print(f'{capability} is not a valid job')
-    elif plugin == 'azureml':
-        if capability == 'training':
-            return AzureMlTraining(profile)
+        if job_definition['job_type'] == 'train':
+            return AzureMlTrain(profile)
+        elif job_definition['job_type'] == 'deploy':
+            return AzureMlDeploy(profile)

@@ -1,19 +1,19 @@
 import yaml
 from pathlib import Path
 
-from mlctl.interfaces.Training import Training
+from mlctl.interfaces.train import Train
 from mlctl.plugins.utils import parse_config, run_subprocess
 import subprocess
 
-class AzureMlTraining(Training):
+class AzureMlTrain(Train):
     # https://docs.microsoft.com/en-us/cli/azure/ml/job?view=azure-cli-latest#code-try-9
     def __init__(self, profile=None):
         self.provider = 'azureml'
 
-    def start_training(self, job):
+    def start_train(self, job):
         
         job_definition = job.serialize()
-        workspace_name = job_definition['infrastructure']['training']['workspace_name']
+        workspace_name = job_definition['infrastructure']['train']['workspace_name']
         sriracha_provider = job_definition['env_vars']['sriracha_provider']
 
         # create the env variable payload
@@ -45,7 +45,7 @@ class AzureMlTraining(Training):
                 'name': job_definition['name'],
                 'docker': {
                     # hardcoding image until we have a mlctl state system for tracking tags
-                    'image': job_definition['infrastructure']['training']['container_repo'] + ':train-image',
+                    'image': job_definition['infrastructure']['train']['container_repo'] + ':train-image',
                 }
             },
             'inputs': input,
@@ -61,14 +61,14 @@ class AzureMlTraining(Training):
         with open('./.mlctl/azureml/train.yaml', 'w') as outfile:
             yaml.dump(azure_yaml, outfile, default_flow_style=False)
 
-        resource_group = job_definition['infrastructure']['training']['resource_group']
+        resource_group = job_definition['infrastructure']['train']['resource_group']
         run_subprocess(['az', 'ml', 'job', 'create', '-f', './.mlctl/azureml/train.yaml', '--web',
         '--resource-group', resource_group, '--workspace-name', workspace_name])
 
-    def get_training_info(self, training_job_name, hyperparameter_tuning=False):
+    def get_train_info(self, train_job_name, hyperparameter_tuning=False):
         try:
             # 
-            run_subprocess(['az', 'ml', 'job', 'show', '--name', training_job_name, '--query' 
+            run_subprocess(['az', 'ml', 'job', 'show', '--name', train_job_name, '--query' 
             '{Name:name,Jobstatus:status}', '--output', 'table', '--resource-group', resource_group,
             '--workspace-name', workspace_name])
             while True:
@@ -81,11 +81,11 @@ class AzureMlTraining(Training):
         except Exception as e:
             return str(e)
 
-    def stop_training(self, training_job_name, hyperparameter_tuning=False):
+    def stop_train(self, train_job_name, hyperparameter_tuning=False):
         try:
             # az ml job cancel --name --resource-group --workspace-name
             # 
-            run_subprocess(['az', 'ml', 'job', 'cancel', '--name', training_job_name,
+            run_subprocess(['az', 'ml', 'job', 'cancel', '--name', train_job_name,
             '--resource-group', resource_group, '--workspace-name', workspace_name])
             while True:
                 output = process.stdout.readline()

@@ -1,9 +1,9 @@
 from random_word import RandomWords
 import json
 
-from mlctl.jobs.common.helper import parse_infrastructure
+from mlctl.jobs.common.helper import parse_infrastructure, parse_resources
 
-class MlctlHostingJob():
+class MlctlDeployJob():
 
     def __init__(self, job_type, project, name=None):
 
@@ -13,7 +13,7 @@ class MlctlHostingJob():
         else:
             # else make a new name randomly
             words = RandomWords().get_random_words()
-            self.name = f'mlctl-hosting-{words[0]}'
+            self.name = f'mlctl-deploy-{words[0]}'
 
         self.job_type = job_type
         self.project = project
@@ -22,11 +22,11 @@ class MlctlHostingJob():
     
     def add_infra_provider(self, params):
 
-        # take only the hosting values from the infrastructure
+        # take only the deploy values from the infrastructure
         self.infrastructure = parse_infrastructure(params)
         
         self.add_env_vars({
-            'sriracha_provider': self.infrastructure['hosting']['name']
+            'sriracha_provider': self.infrastructure['deploy']['name']
         })
 
     def add_models(self, params):
@@ -38,9 +38,13 @@ class MlctlHostingJob():
 
         for param in params:
             model = {
-                'name': param['name'],
                 'artifact': param['artifact']
             }
+
+            try:
+                model['name'] =  param['name']
+            except KeyError:
+                model['name'] = self.name
 
             # Add model traffic version
             try:
@@ -81,27 +85,19 @@ class MlctlHostingJob():
     def add_resources(self, params):
 
         # adding resource is designed to overwrite existing
-        self.infrastructure['hosting']['resources'] = {}
+        # As a ML engineer, I can override the provider specific YAML job
+        if 'deploy' in params:
+            self.infrastructure['deploy']['resources'] = parse_resources(params['deploy'])
 
-        if type(params) == str:
-            self.infrastructure['hosting']['resources']['instance_type'] = params
-            self.infrastructure['hosting']['resources']['instance_count'] = 1
-        elif 'instance' in params:
-            self.infrastructure['hosting']['resources']['instance_type'] = params.instance 
-            self.infrastructure['hosting']['resources']['instance_count'] = params.count
-        elif 'cpu' in params:
-            self.infrastructure['hosting']['resources']['cpu'] = params.cpu
-            self.infrastructure['hosting']['resources']['memory'] = params.memory
-
-        # if hosting add in autoscaling params
-        if ('resources' in self.infrastructure['hosting'] and
-        'instance_type' in self.infrastructure['hosting']['resources'] and 
-        'instance_count_max' not in self.infrastructure['hosting']['resources']):
-            self.infrastructure['hosting']['resources']['instance_count_max'] = 1
+        # if deploy add in autoscaling params
+        if ('resources' in self.infrastructure['deploy'] and
+        'instance_type' in self.infrastructure['deploy']['resources'] and 
+        'instance_count_max' not in self.infrastructure['deploy']['resources']):
+            self.infrastructure['deploy']['resources']['instance_count_max'] = 1
 
     def serialize(self):
         '''
-        This function is used to return a serialized form of the Hosting job created. 
+        This function is used to return a serialized form of the deploy job created. 
         The intended use case is for plugins to parse the serialization
         and launch the upstream provider options
         '''

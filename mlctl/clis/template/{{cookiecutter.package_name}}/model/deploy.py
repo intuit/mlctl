@@ -1,7 +1,7 @@
 import functools
 
 @functools.lru_cache()
-def init(pa):
+def init(da):
     """
     Load the pickled model back into memory. Since loading models can be
     expensive, this function is cached so that the model only needs to be loaded
@@ -11,7 +11,7 @@ def init(pa):
     """
 
 
-def predict(pa, payload):
+def deploy(da, payload):
     """
     Run the decision tree classifier on the input payload. It is expected that
     the payload will have an 'age' and 'height' key, otherwise an error will

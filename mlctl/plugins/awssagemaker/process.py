@@ -1,16 +1,16 @@
-from mlctl.interfaces.Processing import Processing
+from mlctl.interfaces.process import Process
 from mlctl.plugins.utils import parse_config
 import boto3
 
 
-class AwsSagemakerProcessing(Processing):
+class AwsSagemakerProcess(Process):
 
     def __init__(self, profile=None):
         if profile:
             boto3.setup_default_session(profile_name=profile)
         self._client = boto3.client("sagemaker")
 
-    def start_processing(self, job):
+    def start_process(self, job):
         try:
             # if hyperparameter_tuning == True:
             #     parameters = ["HyperParameterTuningJobName",
@@ -26,13 +26,13 @@ class AwsSagemakerProcessing(Processing):
             # else:
             job_definition = job.serialize()
 
-            # https://docs.aws.amazon.com/sagemaker/latest/dg/build-your-own-processing-container.html
+            # https://docs.aws.amazon.com/sagemaker/latest/dg/build-your-own-process-container.html
             kwargs = {
                 'ProcessingJobName': job_definition['name'],
                 
                 'AppSpecification': {
                     # hardcoding image until we have a mlctl state system for tracking tags
-                    'ImageUri': job_definition['infrastructure']['processing']['container_repo'] + ':processing-image'
+                    'ImageUri': job_definition['infrastructure']['process']['container_repo'] + ':process-image'
                 }, 
                 'Environment': job_definition['env_vars'],
                 'ProcessingInputs': [{
@@ -41,7 +41,7 @@ class AwsSagemakerProcessing(Processing):
                     'S3Input': {
                         'LocalPath': "/opt/ml/processing/inputs/",
                         'S3DataType': 'S3Prefix',
-                        'S3Uri': job_definition['data_channels']['input']['processing'],
+                        'S3Uri': job_definition['data_channels']['input']['process'],
                         'S3DataDistributionType': 'FullyReplicated',
                         # 'ContentType': 'text/csv',
                         'S3InputMode': 'File',
@@ -57,8 +57,8 @@ class AwsSagemakerProcessing(Processing):
                     }]
                 }, 'ProcessingResources': {
                     'ClusterConfig': {
-                        'InstanceType': job_definition['infrastructure']['processing']['resources']['instance_type'],
-                        'InstanceCount': job_definition['infrastructure']['processing']['resources']['instance_count'],
+                        'InstanceType': job_definition['infrastructure']['process']['resources']['instance_type'],
+                        'InstanceCount': job_definition['infrastructure']['process']['resources']['instance_count'],
                         'VolumeSizeInGB': 30
                     }
                 },'Tags': [{
@@ -66,7 +66,7 @@ class AwsSagemakerProcessing(Processing):
                     # to update
                     'Value': '0.0.1'
                 }], 
-                'RoleArn': job_definition['infrastructure']['processing']['arn'],
+                'RoleArn': job_definition['infrastructure']['process']['arn'],
                 'StoppingCondition': {
                     'MaxRuntimeInSeconds': 10800
                 }
@@ -84,8 +84,8 @@ class AwsSagemakerProcessing(Processing):
             print('Error' + e)
             return str(e)
 
-    def get_processing_info(self, training_job_name, hyperparameter_tuning=False):
+    def get_process_info(self, training_job_name, hyperparameter_tuning=False):
         pass
 
-    def stop_processing(self, training_job_name, hyperparameter_tuning=False):
+    def stop_process(self, training_job_name, hyperparameter_tuning=False):
         pass
