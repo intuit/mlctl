@@ -10,11 +10,14 @@ setup(
         ],
     python_requires='>=3.6',
     entry_points={
+        'mlbaklava.process': [
+            'example_process = model.process:process'
+        ],
         'mlbaklava.train': [
             'example_train = model.train:train'
         ],
-        'mlbaklava.predict': [
-            'example_predict = model.predict:predict',
+        'mlbaklava.deploy': [
+            'example_deploy = model.deploy:deploy',
         ],
     },
 )

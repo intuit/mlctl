@@ -1,0 +1,23 @@
+mlctl_version: 0.1
+# 
+# Decisions: 
+# - Separate files for stage/prod
+# - move to resources to outside infrastructure
+infrastructure:
+  - name: awssagemaker
+    arn: arn:aws:iam::436885317446:role/sm-execution
+    container_repo: 436885317446.dkr.ecr.us-east-1.amazonaws.com/mlctl-test
+
+  # - name: kubernetes
+  #   cpu: 1
+  #   mem: 1gb
+  #   job_type: 
+  #     - processing
+    # passthrough
+resources: 
+  process: 'ml.t3.medium'
+  train: 'ml.m5.large'
+  deploy: 'ml.t2.medium'
+metadata:
+  - name: mlflow
+    tracking_uri: http://ec2-34-234-193-241.compute-1.amazonaws.com:5000

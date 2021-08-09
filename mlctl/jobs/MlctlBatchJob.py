@@ -1,6 +1,8 @@
 from random_word import RandomWords
 import json
 
+from mlctl.jobs.common.helper import parse_infrastructure, parse_resources
+
 class MlctlTrainingJob():
 
     def __init__(self, job_type, project, name=None):
@@ -117,17 +119,9 @@ class MlctlTrainingJob():
     def add_resources(self, params):
 
         # adding resource is designed to overwrite existing
-        self.resources = {}
-
-        if type(params) == str:
-            self.resources['instance_type'] = params
-            self.resources['instance_count'] = 1
-        elif 'instance' in params:
-            self.resources['instance_type'] = params.instance 
-            self.resources['instance_count'] = params.count
-        elif 'cpu' in params:
-            self.resources['cpu'] = params.cpu
-            self.resources['memory'] = params.memory
+        # As a ML engineer, I can override the provider specific YAML job
+            if 'batch' in params:
+                self.infrastructure['batch']['resources'] = parse_resources(params['batch'])
 
     def serialize(self):
         return self.__dict__

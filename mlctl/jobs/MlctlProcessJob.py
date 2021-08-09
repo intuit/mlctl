@@ -1,9 +1,9 @@
 from random_word import RandomWords
 import json
 
-from mlctl.jobs.common.helper import parse_infrastructure
+from mlctl.jobs.common.helper import parse_infrastructure, parse_resources
 
-class MlctlProcessingJob():
+class MlctlProcessJob():
 
     def __init__(self, job_type, project, name=None):
 
@@ -24,7 +24,7 @@ class MlctlProcessingJob():
         self.infrastructure = parse_infrastructure(params) 
         
         self.add_env_vars({
-            'provider': self.infrastructure['processing']['name']
+            'provider': self.infrastructure['process']['name']
         })
 
 
@@ -53,10 +53,10 @@ class MlctlProcessingJob():
                 'input': {},
             }
 
-        # if the user only puts a string, default to processing
+        # if the user only puts a string, default to process
         if type(params['input']) == str: 
             self.data_channels['input'].update({
-                'processing': params['input']
+                'process': params['input']
             })
         else:
             self.data_channels['input'].update(params['input'])
@@ -97,17 +97,10 @@ class MlctlProcessingJob():
     def add_resources(self, params):
 
         # adding resource is designed to overwrite existing
-        self.resources = {}
-
-        if type(params) == str:
-            self.resources['instance_type'] = params
-            self.resources['instance_count'] = 1
-        elif 'instance' in params:
-            self.resources['instance_type'] = params.instance 
-            self.resources['instance_count'] = params.count
-        elif 'cpu' in params:
-            self.resources['cpu'] = params.cpu
-            self.resources['memory'] = params.memory
+        # As a ML engineer, I can override the provider specific YAML job
+        if 'process' in params:
+            # print(params)
+            self.infrastructure['process']['resources'] = parse_resources(params['process'])
 
     def serialize(self):
         return self.__dict__

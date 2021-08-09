@@ -1,0 +1,8 @@
+mlctl_version: 0.1
+metadata:
+  version: 1.0
+  project: weight_data_aws
+  job_type: process
+data:
+  input: s3://mlctltest/example1_data/
+  output: s3://mlctltest/example1_data_out/

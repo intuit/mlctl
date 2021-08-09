@@ -1,19 +1,19 @@
 from abc import ABC, abstractmethod
 
 
-class Hosting(ABC):
+class Deploy(ABC):
     @abstractmethod
     def create(self, job):
         pass
 
     @abstractmethod
-    def start_hosting(self, job):
+    def start_deploy(self, job):
         pass
 
     @abstractmethod
-    def stop_hosting(self, job):
+    def stop_deploy(self, job):
         pass
 
     @abstractmethod
-    def get_hosting_info(self, job):
+    def get_deploy_info(self, job):
         pass

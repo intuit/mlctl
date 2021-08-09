@@ -2,11 +2,11 @@ import yaml
 from pathlib import Path
 from distutils.core import run_setup
 
-from mlctl.interfaces.Hosting import Hosting
+from mlctl.interfaces.deploy import Deploy
 from mlctl.plugins.utils import parse_config, run_subprocess
 
 
-class AzureMlHosting(Hosting):
+class AzureMlDeploy(Deploy):
     # https://docs.microsoft.com/en-us/cli/azure/ml/job?view=azure-cli-latest#code-try-9
     def __init__(self, profile=None):
         self.provider = 'azureml'
@@ -14,13 +14,13 @@ class AzureMlHosting(Hosting):
     def create(self, job):
         pass
 
-    def start_hosting(self, job):
+    def start_deploy(self, job):
         
         job_definition = job.serialize()
             
-        hosting_job_name = job_definition['name']
-        resource_group = job_definition['infrastructure']['hosting']['resource_group']
-        workspace_name = job_definition['infrastructure']['hosting']['workspace_name']
+        deploy_job_name = job_definition['name']
+        resource_group = job_definition['infrastructure']['deploy']['resource_group']
+        workspace_name = job_definition['infrastructure']['deploy']['workspace_name']
 
         sriracha_provider = job_definition['env_vars']['sriracha_provider']
 
@@ -28,7 +28,7 @@ class AzureMlHosting(Hosting):
         # parse setup.py to get the entrypoint data
 
         result = run_setup("./setup.py", stop_after="init")
-        prediction_entrypoint = result.entry_points['baklava.predict'][0]
+        prediction_entrypoint = result.entry_points['baklava.deploy'][0]
         # input: {'baklava.predict': ['my_prediction_entrypoint = sklearn_tree.predict:main']}
         # output: sklearn_tree
 
@@ -94,7 +94,7 @@ class AzureMlHosting(Hosting):
                     'version': 1,
                     'docker':{
                         # TODO: make this image repo/tag dynamic
-                        'image': job_definition['infrastructure']['hosting']['container_repo'] + ':predict-image'
+                        'image': job_definition['infrastructure']['deploy']['container_repo'] + ':predict-image'
                     }, 'inference_config': {
                         'liveness_route': {
                             'port': 8080,
@@ -109,12 +109,12 @@ class AzureMlHosting(Hosting):
                             
                     }
                 },
-                'instance_type': job_definition['infrastructure']['hosting']['resources']['instance_type'],
+                'instance_type': job_definition['infrastructure']['deploy']['resources']['instance_type'],
                 'scale_settings': {
                     'scale_type': 'manual',
                     'instance_count': 1,
                     'min_instances': 1,
-                    'max_instances': job_definition['infrastructure']['hosting']['resources']['instance_count_max']
+                    'max_instances': job_definition['infrastructure']['deploy']['resources']['instance_count_max']
                 }
             })
 
@@ -130,21 +130,21 @@ class AzureMlHosting(Hosting):
 
 
         # save yaml in cache
-        with open('./.mlctl/azureml/hosting.yaml', 'w') as outfile:
+        with open('./.mlctl/azureml/deploy.yaml', 'w') as outfile:
             yaml.dump(azure_yaml, outfile, default_flow_style=False)
 
         # az ml endpoint create --name sklearnendpoint -f endpoint.yaml  --resource-group mlctl --workspace-name mlctl-test
-        run_subprocess(['az', 'ml', 'endpoint', 'create', '--name', hosting_job_name, '-f', './.mlctl/azureml/hosting.yaml',
+        run_subprocess(['az', 'ml', 'endpoint', 'create', '--name', deploy_job_name, '-f', './.mlctl/azureml/deploy.yaml',
         '--resource-group', resource_group, '--workspace-name', workspace_name])
 
-    def get_hosting_info(self, job):
+    def get_deploy_info(self, job):
         try:
             # 
             job_definition = job.serialize()
             
-            hosting_job_name = job_definition['name']
-            resource_group = job_definition['infrastructure']['hosting']['resource_group']
-            workspace_name = job_definition['infrastructure']['hosting']['workspace_name']
+            deploy_job_name = job_definition['name']
+            resource_group = job_definition['infrastructure']['deploy']['resource_group']
+            workspace_name = job_definition['infrastructure']['deploy']['workspace_name']
 
             run_subprocess(['az', 'ml', 'job', 'show', '--name', training_job_name, '--query' 
             '{Name:name,Jobstatus:status}', '--output', 'table', '--resource-group', resource_group,
@@ -152,17 +152,17 @@ class AzureMlHosting(Hosting):
         except Exception as e:
             return str(e)
 
-    def stop_hosting(self, job):
+    def stop_deploy(self, job):
         try:
             # az ml job cancel --name --resource-group --workspace-name
             # 
             job_definition = job.serialize()
             
-            hosting_job_name = job_definition['name']
-            resource_group = job_definition['infrastructure']['hosting']['resource_group']
-            workspace_name = job_definition['infrastructure']['hosting']['workspace_name']
+            deploy_job_name = job_definition['name']
+            resource_group = job_definition['infrastructure']['deploy']['resource_group']
+            workspace_name = job_definition['infrastructure']['deploy']['workspace_name']
 
-            run_subprocess(['az', 'ml', 'job', 'cancel', '--name', hosting_job_name,
+            run_subprocess(['az', 'ml', 'job', 'cancel', '--name', deploy_job_name,
             '--resource-group', resource_group, '--workspace-name', workspace_name])
         except Exception as e:
             return str(e)

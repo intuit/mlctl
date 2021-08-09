@@ -1,9 +1,9 @@
 from random_word import RandomWords
 import json
 
-from mlctl.jobs.common.helper import parse_infrastructure
+from mlctl.jobs.common.helper import parse_infrastructure, parse_resources
 
-class MlctlTrainingJob():
+class MlctlTrainJob():
 
     def __init__(self, job_type, project, name=None):
 
@@ -13,7 +13,7 @@ class MlctlTrainingJob():
         else:
             # else make a new name randomly
             words = RandomWords().get_random_words()
-            self.name = f'mlctl-training-{words[0]}'
+            self.name = f'mlctl-train-{words[0]}'
 
         self.job_type = job_type
         self.project = project
@@ -24,7 +24,7 @@ class MlctlTrainingJob():
         self.infrastructure = parse_infrastructure(params) 
         
         self.add_env_vars({
-            'provider': self.infrastructure['training']['name']
+            'provider': self.infrastructure['train']['name']
         })
 
     def add_metadata_provider(self, params):
@@ -52,10 +52,10 @@ class MlctlTrainingJob():
                 'input': {},
             }
 
-        # if the user only puts a string, default to training
+        # if the user only puts a string, default to train
         if type(params['input']) == str: 
             self.data_channels['input'].update({
-                'training': params['input']
+                'train': params['input']
             })
         else:
             self.data_channels['input'].update(params['input'])
@@ -96,17 +96,8 @@ class MlctlTrainingJob():
 
         # adding resource is designed to overwrite existing
         # As a ML engineer, I can override the provider specific YAML job
-        self.infrastructure['training']['resources'] = {}
-
-        if type(params) == str:
-            self.infrastructure['training']['resources']['instance_type'] = params
-            self.infrastructure['training']['resources']['instance_count'] = 1
-        elif 'instance' in params:
-            self.infrastructure['training']['resources']['instance_type'] = params.instance 
-            self.infrastructure['training']['resources']['instance_count'] = params.count
-        elif 'cpu' in params:
-            self.infrastructure['training']['resources']['cpu'] = params.cpu
-            self.infrastructure['training']['resources']['memory'] = params.memory
+        if 'train' in params:
+            self.infrastructure['train']['resources'] = parse_resources(params['train'])
 
     def serialize(self):
         return self.__dict__
