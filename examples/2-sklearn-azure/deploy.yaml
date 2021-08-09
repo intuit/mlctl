@@ -1,0 +1,10 @@
+mlctl_version: 0.1
+metadata:
+  name: my-new-endpoint
+  job_type: deploy
+  project: height_data
+resources: Standard_DS2_v2
+models:
+  - name: sklearn-model12
+    artifact: https://mlctldata.blob.core.windows.net/modelartifact/model.pkl
+    version: 1
