@@ -3,7 +3,7 @@ import os
 import shutil
 
 
-def train():
+def train(ta):
     print('Hello, put your model training code here')
 
 
