@@ -9,18 +9,17 @@ setup(
         'sklearn',
         'pandas',
         'scipy',
+        'mlsriracha'
     ],
     dockerlines=[
-        'COPY mlsriracha /opt/mlsriracha',
-        'RUN cd /opt/mlsriracha && pip install .',
     ],
     python_version='3.6',
     entry_points={
-        'baklava.train': [
-            'my_training_entrypoint = sklearn_tree.train:main',
+        'mlbaklava.train': [
+            'my_train_entrypoint = sklearn_tree.train:main',
         ],
-        'baklava.predict': [
-            'my_prediction_entrypoint = sklearn_tree.predict:main',
+        'mlbaklava.deploy': [
+            'my_deploy_entrypoint = sklearn_tree.deploy:main',
         ]
     }
 )

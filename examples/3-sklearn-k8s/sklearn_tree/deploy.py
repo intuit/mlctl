@@ -11,7 +11,7 @@ import functools
 import numpy as np
 
 @functools.lru_cache()
-def init(pa):
+def init(da):
     """
     Load the pickled model back into memory. Since loading models can be
     expensive, this function is cached so that the model only needs to be loaded
@@ -24,7 +24,7 @@ def init(pa):
         return pickle.load(stream)
 
 
-def main(pa, payload):
+def main(da, payload):
     """
     Run the decision tree classifier on the input payload. It is expected that
     the payload will have an 'age' and 'height' key, otherwise an error will
@@ -41,7 +41,7 @@ def main(pa, payload):
             be either a dictionary (like the function input) or a JSON string.
     """
     # Load the model and execute
-    model = init(pa)
+    model = init(da)
 
     predictions = []
     for instance in payload['instances']:

@@ -107,10 +107,10 @@ The training job yaml in `train.yaml` requires the data inputs and outputs be up
 
 8. Test the endpoint
 
-Find the name of the endpoint by checking the logs. The patterns is XXXXXXXXXX.
+Find the name of the endpoint by checking the logs. The patterns is XXXXXXXXX, and replace the `endpoint_name_value` below with the SageMaker provided endpoint name.
 
 ```
 aws sagemaker invoke-endpoint
 --endpoint-name <endpoint_name_value>
---body <value>
+--body {"instances":[{"age": 35, "height": 182}]}
 ```

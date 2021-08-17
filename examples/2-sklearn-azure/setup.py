@@ -9,11 +9,15 @@ setup(
         'sklearn',
         'pandas',
         'scipy',
+        'mlsriracha'
     ],
     dockerlines=[
     ],
     python_version='3.6',
     entry_points={
+        'mlbaklava.process': [
+            'my_train_entrypoint = sklearn_tree.process:main',
+        ],
         'mlbaklava.train': [
             'my_train_entrypoint = sklearn_tree.train:main',
         ],

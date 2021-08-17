@@ -65,11 +65,13 @@ def parse_infrastructure(params):
             # else save as the default option
             infra_options['default'] = iter
     
-    for job in options:
-        # save the infra choice for a job type
-        if job not in infra_options:
-            print(f'Copying default infra config to {job}')
-            infra_options[job] = infra_options['default']
+    # if there's a default, copy it over to the other jobs
+    if 'default' in infra_options:
+        for job in options:
+            # save default infra job to all other
+            if job not in infra_options:
+                # print(f'Copying default infra config to {job}')
+                infra_options[job] = infra_options['default']
 
     # print(infra_options)
 

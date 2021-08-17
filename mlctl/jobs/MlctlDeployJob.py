@@ -1,4 +1,5 @@
-from random_word import RandomWords
+from random_words import RandomWords
+RandomWords().get_random_words()
 import json
 
 from mlctl.jobs.common.helper import parse_infrastructure, parse_resources
@@ -12,8 +13,8 @@ class MlctlDeployJob():
             self.name = name
         else:
             # else make a new name randomly
-            words = RandomWords().get_random_words()
-            self.name = f'mlctl-deploy-{words[0]}'
+            word = RandomWords().random_word('d')
+            self.name = f'mlctl-deploy-{word}'
 
         self.job_type = job_type
         self.project = project
@@ -30,12 +31,16 @@ class MlctlDeployJob():
         })
 
     def add_models(self, params):
-
+        # check if we already have models to add
         try:
             self.models
         except AttributeError:
             self.models = []
 
+        # if there is a singular object, convert it to an array
+        if 'artifact' in params:
+            params = [params]
+            
         for param in params:
             model = {
                 'artifact': param['artifact']

@@ -1,7 +1,8 @@
 import yaml
 from pathlib import Path
 import boto3
-from distutils.core import run_setup
+import time
+import pprint
 
 from mlctl.interfaces.deploy import Deploy
 from mlctl.plugins.utils import parse_config, run_subprocess
@@ -22,7 +23,7 @@ class AwsSagemakerDeploy(Deploy):
             response = self.client.create_model(
                 ModelName=model['name']+ '-model',
                 PrimaryContainer={
-                    'Image': job_definition['infrastructure']['deploy']['container_repo'] + ':predict-image',
+                    'Image': job_definition['infrastructure']['deploy']['container_repo'] + ':deploy-image',
                     'ImageConfig': {
                         'RepositoryAccessMode': 'Platform',
                     },
@@ -94,11 +95,24 @@ class AwsSagemakerDeploy(Deploy):
             ]
         )
 
-        print(response)
+        return response
 
 
-    def get_deploy_info(self, job):
-        pass
+    def get_deploy_info(self, job, loop=False):
+
+        response = self.client.describe_endpoint(EndpointName=job.serialize()['name']+ '-endpoint')
+        # print(response)
+        if response['EndpointStatus'] == 'Creating':
+            
+            print('Job in progress')
+            time.sleep(10)
+            
+            return self.get_deploy_info(job, loop)
+        
+        print('Job Spec:')
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(response)
+        print('Job Completed')
 
     def stop_deploy(self, job):
         try:
