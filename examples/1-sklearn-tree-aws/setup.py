@@ -9,6 +9,7 @@ setup(
         'sklearn',
         'pandas',
         'scipy',
+        'mlsriracha'
     ],
     dockerlines=[],
     python_version='3.6',

@@ -3,7 +3,7 @@ import json
 
 from mlctl.jobs.common.helper import parse_infrastructure, parse_resources
 
-class MlctlTrainingJob():
+class MlctlBatchJob():
 
     def __init__(self, job_type, project, name=None):
 
@@ -13,7 +13,7 @@ class MlctlTrainingJob():
         else:
             # else make a new name randomly
             words = RandomWords().get_random_words()
-            self.name = f'mlctl-{words[0]}-{words[1]}'
+            self.name = f'mlctl-batch-{words[1]}'
 
         self.job_type = job_type
         self.project = project
