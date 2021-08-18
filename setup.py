@@ -32,7 +32,8 @@ setup(
         'click>=8.0.1',
         'boto3>=1.17.111',
         'cookiecutter>=1.7.3',
-        'PyYAML>=5.4.1'
+        'PyYAML>=5.4.1',
+        'RandomWords>=0.3.0'
     ],
 
     maintainer='Intuit ML Platform',
