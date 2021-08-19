@@ -12,7 +12,7 @@ class MlctlProcessJob():
             self.name = name
         else:
             # else make a new name randomly
-            word = RandomWords().random_word('p')
+            word = RandomWords().random_word()
             self.name = f'mlctl-process-{word}'
 
         self.job_type = job_type

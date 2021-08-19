@@ -26,34 +26,33 @@ class TestInitCli(unittest.TestCase):
         self.assertIn(
             "DEBUG - Creating ML Model project using template from", response.output)
 
-        self.assertTrue(filecmp.cmp(os.path.join(project_path, "model/predict.py"),
-                                    os.path.join(os.path.dirname(__file__), "mlctl_init/model/predict.py")))
+        template_path = os.path.join(os.path.dirname(__file__), '../../mlctl/clis/template/{{cookiecutter.package_name}}/')
 
-        self.assertTrue(filecmp.cmp(os.path.join(project_path, "model/train.py"),
-                                    os.path.join(os.path.dirname(__file__), "mlctl_init/model/train.py")))
+        cmp = filecmp.dircmp(project_path, template_path)
 
-        self.assertTrue(filecmp.cmp(os.path.join(project_path, "model/__init__.py"),
-                                    os.path.join(os.path.dirname(__file__), "mlctl_init/model/__init__.py")))
+        self.assertCountEqual(cmp.same_files, [".gitignore", "setup.cfg", "tox.ini"])
+        self.assertCountEqual(cmp.common_dirs, ["model", "tests"])
+        self.assertCountEqual(cmp.left_only, [])
+        self.assertCountEqual(cmp.right_only, [])
+        self.assertCountEqual(cmp.diff_files, ["README.md", "setup.py"])
 
-        self.assertTrue(os.path.exists(
-            os.path.join(project_path, "tests/__init__.py")))
-        self.assertTrue(os.path.exists(os.path.join(
-            project_path, "tests/test_sample_project.py")))
+        modeldircmp = filecmp.dircmp(os.path.join(project_path, "model"), os.path.join(template_path, "model"))
 
-        self.assertTrue(filecmp.cmp(os.path.join(project_path, ".gitignore"),
-                                    os.path.join(os.path.dirname(__file__), "mlctl_init/.gitignore")))
+        self.assertCountEqual(modeldircmp.same_files, ["deploy.py", "process.py", "train.py"])
+        self.assertCountEqual(modeldircmp.common_dirs, [])
+        self.assertCountEqual(modeldircmp.left_only, [])
+        self.assertCountEqual(modeldircmp.right_only, [])
+        self.assertCountEqual(modeldircmp.diff_files, ["__init__.py"])
 
-        self.assertTrue(filecmp.cmp(os.path.join(project_path, "README.md"),
-                                    os.path.join(os.path.dirname(__file__), "mlctl_init/README.md")))
+        testdircmp = filecmp.dircmp(os.path.join(project_path, "tests"), os.path.join(template_path, "tests"))
 
-        self.assertTrue(filecmp.cmp(os.path.join(project_path, "setup.cfg"),
-                                    os.path.join(os.path.dirname(__file__), "mlctl_init/setup.cfg")))
+        self.assertCountEqual(testdircmp.same_files, [])
+        self.assertCountEqual(testdircmp.common_dirs, [])
+        self.assertCountEqual(testdircmp.left_only, ["test_sample_project.py"])
+        self.assertCountEqual(testdircmp.right_only, ["test_{{cookiecutter.package_name.lower().replace(' ', '_').replace('-', '_')}}.py"])
+        self.assertCountEqual(testdircmp.diff_files, ["__init__.py"])
 
-        self.assertTrue(filecmp.cmp(os.path.join(project_path, "setup.py"),
-                                    os.path.join(os.path.dirname(__file__), "mlctl_init/setup.py")))
+        # TODO: test files that are different due to string replacement
 
-        self.assertTrue(filecmp.cmp(os.path.join(project_path, "tox.ini"),
-                                    os.path.join(os.path.dirname(__file__), "mlctl_init/tox.ini")))
-
-        # removes model code from local directory
+        # clean up generated files, TODO: move to final
         rmtree(str(project_path))
