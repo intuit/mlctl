@@ -1,5 +1,4 @@
 from random_words import RandomWords
-RandomWords().get_random_words()
 import json
 
 from mlctl.jobs.common.helper import parse_infrastructure, parse_resources
