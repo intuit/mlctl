@@ -18,9 +18,11 @@ class KubernetesTrain(Train):
         self.provider = 'kubernetes'
 
         # for direct use
-        # config.load_kube_config()
+        try:
+            config.load_kube_config()
         # for KFP component use
-        config.load_incluster_config()
+        except ConfigException:
+            config.load_incluster_config()
 
         try:
             c = Configuration().get_default_copy()
