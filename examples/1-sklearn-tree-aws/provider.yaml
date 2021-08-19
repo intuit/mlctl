@@ -1,0 +1,9 @@
+mlctl_version: 0.1
+infrastructure:
+  - name: awssagemaker
+    arn: <iam_arn_for_running_jobs>
+    container_repo: <container_repo_on_ECR>
+resources: 
+  process: 'ml.t3.medium'
+  train: 'ml.m5.large'
+  deploy: 'ml.t2.medium'
