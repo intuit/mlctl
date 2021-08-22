@@ -100,6 +100,7 @@ The training job requires a similar compilation step. Replace the
     mlctl train build -c train.yaml
     docker tag train-image 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:train-image
     docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:train-image
+    mlctl train start -c train.yaml
     ```
 
 The training job yaml in `train.yaml` requires the data inputs and outputs be updated with your S3 bucket. 
@@ -108,9 +109,10 @@ The training job yaml in `train.yaml` requires the data inputs and outputs be up
 
 1. Build, upload, and create a model endpoint
     ```
+    mlctl deploy build -c deploy.yaml
     docker tag deploy-image 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:deploy-image
     docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:deploy-image
-    mlctl deploy build -c deploy.yaml
+    mlctl deploy start -c deploy.yaml
     ```
 
     This will host the prediction function on your local machine
