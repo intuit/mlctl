@@ -55,7 +55,7 @@ class MlctlTrainJob():
         # if the user only puts a string, default to train
         if type(params['input']) == str: 
             self.data_channels['input'].update({
-                'train': params['input']
+                'training': params['input']
             })
         else:
             self.data_channels['input'].update(params['input'])

@@ -35,6 +35,9 @@ def parse_infrastructure(params):
         # print(infra)
         iter = {'name': infra['name']}
         iter['container_repo'] = infra['container_repo']
+        
+        if 'namespace' in infra:
+            iter['namespace'] = infra['namespace']
 
         # currently used for AWS
         if 'arn' in infra:
