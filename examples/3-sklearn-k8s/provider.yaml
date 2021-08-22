@@ -1,0 +1,13 @@
+mlctl_version: 0.1
+infrastructure:
+  - name: kubernetes
+    namespace: <k8s namespace for running jobs>
+    container_repo: <AWS account ID>.dkr.ecr.<AWS region>.amazonaws.com/<ECR repo name>
+resources:
+  train: 
+    requests:
+      memory: "256Mi"
+      cpu: "1000m"
+    limits:
+      memory: "1024Mi"
+      cpu: "1000m"
