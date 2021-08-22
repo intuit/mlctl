@@ -1,39 +1,35 @@
-Sklearn Tree for AWS SageMaker
-============
+# Sklearn Tree for AWS SageMaker
 
-This is an example project which builds small SKlearn Decision Tree model to create jobs with SageMaker. 
+This is an example project which builds small SKlearn Decision Tree model to create jobs with SageMaker. Using this example, one can:
 
-Prereqs.
------
+- Build the model for execution on Sagemaker
+- Pre-process data via a data processing step
+- Train the model with a representative set of training data
+- Host the model for online hosting and consumption
 
-1. (3 minutes) awscli - To run mlctl with AWS, as end user, you will need to AWS CLI installed and authenticated. The most up to date instructions can be found on the [AWS CLI install page](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html). 
+## Infrastructure Pre-requisites
+
+1. (5 minutes) awscli - To run mlctl with AWS, you will need AWS CLI installed and authenticated. The most up to date instructions can be found on the [AWS CLI install page](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html). Once installed, use `aws configure` to setup the `AWS Access Key ID`, `AWS Secret Access Key` and `Default region name`. The access keys can be found on the AWS console at `<aws account name> -> My security credentials -> Access keys`
 
 2. (10 minutes) Role assignments - To run a SageMaker job, you need to create an execution role. The role gives and limits which permissions the jobs created by mlctl can do. [This guide on the SageMaker docs](https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html) include instructions for creating roles with both SageMaker and S3 access. You will see instructions to use this role in the `provider.yaml` below.
 
-3. (5 minutes) Data Upload - SageMaker relies on S3 as the primary data source for inputs and outputs of each job. Create a S3 bucket in the same region you plan to run jobs in and upload in the files from the `/data` folder of this tutorial. 
+3. (5 minutes) Data Upload - SageMaker relies on S3 as the primary data source for inputs and outputs of each job. Create a S3 bucket in the same region you plan to run jobs in and upload in the files from the `/data` folder of this tutorial. The name of the bucket should contain the keyword `sagemaker`, in order for the Sagemaker role above to have access to the bucket.
 
 4. (3 minutes) Create a ECR Repo - Follow the [AWS instructions on creating an ECR repo](https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-create.html) and create an ECR repo, keeping the region consistent with the region in which the S3 bucket was created.
 
-5. (2 minutes) Docker - Have docker desktop or similar CLI on your local machine.
+5. (5 minutes) Docker - Install [docker desktop](https://docs.docker.com/desktop/) or [Docker Engine](https://docs.docker.com/engine/) on your local machine. If you are on Linux, you may want to [run docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/).
 
-Usage
------
+## Install and configure mlctl
 
-1. Installation. 
+1. Installation
 
-Install the latest release of mlctl. This will also install mlbaklava, the packaging library used to build container jobs with your Python code. 
-
-    ```
-    pip install mlctl
-    ```
-
-In order to install the `dev` version of `mlctl`, use:
+Install the latest `dev` version of `mlctl`. The latest releases are available on [PyPi](https://pypi.org/project/mlctl/#history):
 
     ```
     pip install mlctl==0.0.6.dev1
     ```
 
-1. Point mlctl to your infrastructure. 
+2. Point mlctl to your infrastructure
 
 Edit the `provider.yaml`:
 
@@ -54,7 +50,11 @@ The `provider.yaml` file below is an example of how the final file should look. 
       deploy: 'ml.t2.medium'
     ```
 
-3. Build the process job. 
+## Build and Execute Jobs
+
+### Processing Job
+
+1. Build the process job
 
 Most models require data processing before it can be used. You can inspect the data processing code by navigating to `sklearn_tree/process.py`. The mapping of all the other job starting points can be found in `setup.py` entry_points. Mlctl is taking your code as an entrypoint and running bootstrap and post-job code that is required by the underlying MLOps infrastructure.
 
@@ -65,16 +65,19 @@ The code needs to be compiled to a container, which mlctl does automatically for
     
     ```
 
-4. Upload process job container to ECR
+2. Upload process job container to ECR
 
 ECR has a custom login script. To start that command, run `aws ecr get-login-password`. If you need to specify an AWS region, [read through the command options](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-authenticate-registry) in full.
 
+Once the above command successfully retrieves the credentials, use these commands to upload the docker image to ECR:
+
     ```
-    docker tag process-image 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:process-image
-    docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:process-image
+    aws ecr get-login-password | docker login --username AWS --password-stdin <ecr URL>
+    docker tag process-image <ecr URL>:process-image
+    docker push <ecr URL>:process-image
     ```
 
-5. Define and run the process job
+3. Define and run the process job
 
 The process job takes a file, and then does simple filtering, and saves it back in another S3 directory. Edit the `process.yaml` with the S3 bucket you uploaded the Step 3 prereq above. The output can be a different folder in the same S3 bucket. `mlctl` defines jobs by project, job name, data files, and inputs. For process jobs, typically the user inputs are minimal and the only parameter to change is the data source.
 
@@ -85,7 +88,7 @@ metadata:
   project: weight_data_aws
   job_type: process
 data:
-  input: s3://mlctltest/example1_data/
+  input: s3://mlctltest/example1_data/train
   output: s3://mlctltest/example1_data_out/
 ```
 After the `process.yaml` has been changed, the process job can be run
@@ -93,6 +96,12 @@ After the `process.yaml` has been changed, the process job can be run
     ```
     mlctl process start -c process.yaml
     ```
+
+4. Check the job status
+
+Check the status of the processing job on the AWS console, at `Amazon SageMaker -> Processing -> Processing Jobs`
+
+### Training Job
 
 1. Build, upload, and run the Train job
 
@@ -102,26 +111,34 @@ The training job requires a similar compilation step. Replace the
     mlctl train build -c train.yaml
     docker tag train-image 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:train-image
     docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:train-image
+    mlctl train start -c train.yaml
     ```
 
 The training job yaml in `train.yaml` requires the data inputs and outputs be updated with your S3 bucket. 
 
-7. Build, upload, and create a model endpoint
+2. Check the job status
+
+Check the status of the model training job on the AWS console, at `Amazon SageMaker -> Training -> Training Jobs`
+
+### Deploy the model for online inference
+
+1. Build, upload, and create a model endpoint
     ```
+    mlctl deploy build -c deploy.yaml
     docker tag deploy-image 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:deploy-image
     docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-for-sagemaker:deploy-image
-    mlctl deploy build -c deploy.yaml
+    mlctl deploy start -c deploy.yaml
     ```
 
     This will host the prediction function on your local machine
     identically to how it would be hosted in sagemaker.
 
-8. Test the endpoint
+2. Test the endpoint
 
 Find the name of the endpoint by checking the logs. The patterns is XXXXXXXXX, and replace the `endpoint_name_value` below with the SageMaker provided endpoint name.
 
 ```
-aws sagemaker invoke-endpoint
+aws sagemaker-runtime invoke-endpoint
 --endpoint-name <endpoint_name_value>
 --body {"instances":[{"age": 35, "height": 182}]}
 ```
