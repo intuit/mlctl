@@ -137,6 +137,7 @@ Find the name of the endpoint by checking the logs. The patterns is XXXXXXXXX, a
 ```
 aws sagemaker-runtime invoke-endpoint
 --endpoint-name <endpoint_name_value>
---body {"instances":[{"age": 35, "height": 182}]}
 --cli-binary-format raw-in-base64-out
+--content-type application/json
+--body '{"instances":[{"age": 35, "height": 182}]}' test.txt
 ```
