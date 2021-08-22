@@ -3,9 +3,11 @@ import yaml
 from mlctl.plugins.awssagemaker.deploy import AwsSagemakerDeploy
 from mlctl.plugins.awssagemaker.train import AwsSagemakerTrain
 from mlctl.plugins.awssagemaker.process import AwsSagemakerProcess
-import mlctl.plugins.mlflow.metadata as MlflowPlugin
 from mlctl.plugins.azureml.train import AzureMlTrain
 from mlctl.plugins.azureml.deploy import AzureMlDeploy
+from mlctl.plugins.kubernetes.train import KubernetesTrain
+import mlctl.plugins.mlflow.metadata as MlflowPlugin
+
 from mlctl.jobs.MlctlTrainJob import MlctlTrainJob
 from mlctl.jobs.MlctlDeployJob import MlctlDeployJob
 from mlctl.jobs.MlctlProcessJob import MlctlProcessJob
@@ -212,3 +214,8 @@ def determine_infra_plugin_from_job(job, profile=None):
             return AzureMlTrain(profile)
         elif job_definition['job_type'] == 'deploy':
             return AzureMlDeploy(profile)
+    elif job_definition['infrastructure'][job_definition['job_type']]['name'] == 'kubernetes':
+        if job_definition['job_type'] == 'train':
+            return KubernetesTrain(profile)
+
+    raise Error('No infrastructure plug in found') 

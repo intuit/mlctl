@@ -80,7 +80,7 @@ class KubernetesTrain(Train):
             'apiVersion': 'v1',
             'kind': 'Pod',
             'metadata': {
-                'name': job_definition['name'],
+                'generateName': job_definition['name'],
                 'labels': {
                     'purpose': 'mlctl-job'
                 },
