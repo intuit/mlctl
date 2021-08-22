@@ -1,10 +1,15 @@
 # Sklearn Tree for AWS SageMaker
 
-This is an example project which builds small SKlearn Decision Tree model to create jobs with SageMaker. 
+This is an example project which builds small SKlearn Decision Tree model to create jobs with SageMaker. Using this example, one can:
 
-## Pre-requisites
+- Build the model for execution on Sagemaker
+- Pre-process data via a data processing step
+- Train the model with a representative set of training data
+- Host the model for online hosting and consumption
 
-1. (3 minutes) awscli - To run mlctl with AWS, as end user, you will need to AWS CLI installed and authenticated. The most up to date instructions can be found on the [AWS CLI install page](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html). 
+## Infrastructure Pre-requisites
+
+1. (5 minutes) awscli - To run mlctl with AWS, you will need AWS CLI installed and authenticated. The most up to date instructions can be found on the [AWS CLI install page](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html). Once installed, use `aws configure` to setup the `AWS Access Key ID`, `AWS Secret Access Key` and `Default region name`. The access keys can be found on the AWS console at `<aws account name> -> My security credentials -> Access keys`
 
 2. (10 minutes) Role assignments - To run a SageMaker job, you need to create an execution role. The role gives and limits which permissions the jobs created by mlctl can do. [This guide on the SageMaker docs](https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html) include instructions for creating roles with both SageMaker and S3 access. You will see instructions to use this role in the `provider.yaml` below.
 
@@ -12,9 +17,9 @@ This is an example project which builds small SKlearn Decision Tree model to cre
 
 4. (3 minutes) Create a ECR Repo - Follow the [AWS instructions on creating an ECR repo](https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-create.html) and create an ECR repo, keeping the region consistent with the region in which the S3 bucket was created.
 
-5. (2 minutes) Docker - Have [docker desktop](https://docs.docker.com/desktop/) or [Docker Engine](https://docs.docker.com/engine/) installed on your local machine. If you are on Linux, you may want to [run docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/).
+5. (5 minutes) Docker - Install [docker desktop](https://docs.docker.com/desktop/) or [Docker Engine](https://docs.docker.com/engine/) on your local machine. If you are on Linux, you may want to [run docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/).
 
-## Usage
+## Install and configure mlctl
 
 1. Installation
 
@@ -44,6 +49,8 @@ The `provider.yaml` file below is an example of how the final file should look. 
       train: 'ml.m5.large'
       deploy: 'ml.t2.medium'
     ```
+
+## Build and Execute Jobs
 
 ### Processing Job
 
