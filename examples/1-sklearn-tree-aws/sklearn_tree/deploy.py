@@ -20,7 +20,7 @@ def init(da):
     Returns:
         model (sklearn.tree.DecisionTreeClassifier): The trained decision tree.
     """
-    with open(pa.model_artifact('model.pkl'), 'rb') as stream:
+    with open(da.model_artifact('model.pkl'), 'rb') as stream:
         return pickle.load(stream)
 
 
@@ -56,7 +56,7 @@ def main(da, payload):
 
         predictions.append({'weight': weight})
     # Return back a payload with the result
-    metadata = pa.endpoint_metadata()
+    metadata = da.endpoint_metadata()
 
     result = {'predictions': predictions,
         'deployedModelId': metadata.get('model_id')
