@@ -97,6 +97,10 @@ After the `process.yaml` has been changed, the process job can be run
     mlctl process start -c process.yaml
     ```
 
+4. Check the job status
+
+Check the status of the processing job on the AWS console, at `Amazon SageMaker -> Processing -> Processing Jobs`
+
 ### Training Job
 
 1. Build, upload, and run the Train job
@@ -111,6 +115,10 @@ The training job requires a similar compilation step. Replace the
     ```
 
 The training job yaml in `train.yaml` requires the data inputs and outputs be updated with your S3 bucket. 
+
+2. Check the job status
+
+Check the status of the model training job on the AWS console, at `Amazon SageMaker -> Training -> Training Jobs`
 
 ### Deploy the model for online inference
 
