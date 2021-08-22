@@ -130,9 +130,6 @@ Check the status of the model training job on the AWS console, at `Amazon SageMa
     mlctl deploy start -c deploy.yaml
     ```
 
-    This will host the prediction function on your local machine
-    identically to how it would be hosted in sagemaker.
-
 2. Test the endpoint
 
 Find the name of the endpoint by checking the logs. The patterns is XXXXXXXXX, and replace the `endpoint_name_value` below with the SageMaker provided endpoint name.
@@ -141,4 +138,5 @@ Find the name of the endpoint by checking the logs. The patterns is XXXXXXXXX, a
 aws sagemaker-runtime invoke-endpoint
 --endpoint-name <endpoint_name_value>
 --body {"instances":[{"age": 35, "height": 182}]}
+--cli-binary-format raw-in-base64-out
 ```
