@@ -2,7 +2,6 @@ from mlctl.interfaces.train import Train
 from mlctl.plugins.utils import parse_config
 import boto3
 
-
 class AwsSagemakerTrain(Train):
 
     def __init__(self, profile=None):

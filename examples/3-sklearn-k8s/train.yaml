@@ -1,0 +1,16 @@
+mlctl_version: 0.1
+metadata:
+  version: 1.0
+  project: height_data
+  job_name: sklearndemo
+  job_type: train
+env_vars:
+  hp_eta: 0.3
+  hp_max_depth: 3
+  hp_objective: multi:softprob
+  hp_num_class: 3
+  AWS_ACCESS_KEY_ID: <IAM account access key with permissions to the S3 bucket>
+  AWS_SECRET_ACCESS_KEY: <IAM secret key with permissions to the S3 bucket>
+data:
+  input: <S3 bucket folder URI>
+  output: <S3 bucket folder URI>
