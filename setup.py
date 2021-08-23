@@ -34,6 +34,7 @@ setup(
         'cookiecutter>=1.7.3',
         'PyYAML>=5.4.1',
         'RandomWords>=0.3.0',
+        'kubernetes>=18.20.0'
         # 'mlbaklava==0.0.5.dev1'
     ],
 

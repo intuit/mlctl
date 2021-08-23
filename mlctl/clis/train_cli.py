@@ -17,6 +17,7 @@ def build(provider_config, config, tag):
     
 
     job = parse_train_yamls(config, provider_config)
+    print(job.serialize())
     infrastructure_name = job.serialize()['infrastructure']['train']['name']
 
     # validate if there is a setup file to build from
@@ -43,6 +44,7 @@ def build(provider_config, config, tag):
 @click.option('--config', '-c', required=True, help="config file containing parameters for train job", metavar='')
 def start(profile, provider_config, config):
     job = parse_train_yamls(config, provider_config)
+    print(job.serialize())
     train = determine_infra_plugin_from_job(job, profile)
     click.echo(train.start_train(
         job))
